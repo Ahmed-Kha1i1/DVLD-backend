@@ -1,0 +1,6 @@
+@DVLDApi_HostAddress = http://localhost:5263
+
+GET {{DVLDApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
