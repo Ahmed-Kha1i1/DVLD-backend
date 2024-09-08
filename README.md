@@ -1,0 +1,2 @@
+# Driving Vehicles Licensed Department (DVLD) - Backend API
+This repository contains the backend API for the Driving Vehicles Licensed Department (DVLD) system, developed using .NET ASP Core Web API. It provides a set of RESTful services to manage driving licenses, and related processes. The API handles core functionality such as issuing, renewing, and managing licenses, and is designed to be consumed by front-end clients.
