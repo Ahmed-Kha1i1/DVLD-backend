@@ -131,7 +131,7 @@ namespace DVLDApi.Controllers
             {
                 return NotFound(CreateResponse(StatusFail, "No users found!"));
             }
-            return Ok(CreateResponse(StatusSuccess, users));
+            return Ok(CreateResponse(StatusSuccess, new { length = users.Count, data = users }));
         }
 
         [HttpGet("Exists/{userId}", Name = "IsUserExistByUserId")]

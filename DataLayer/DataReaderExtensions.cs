@@ -34,7 +34,8 @@ namespace DataLayerCore
                 }
                 else
                 {
-                    var convertedValue = Convert.ChangeType(value, property.PropertyType);
+                    var TargetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType; 
+                    var convertedValue = Convert.ChangeType(value, TargetType);
                     property.SetValue(obj, convertedValue);
                 }
             }

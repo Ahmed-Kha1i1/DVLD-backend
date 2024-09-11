@@ -4,7 +4,6 @@
     {
         public string Gendor { get; set; }
         public string CountryName { get; set; }
-
-
+        public string FullName { get; set; }
     }
 }
