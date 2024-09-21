@@ -137,7 +137,7 @@ namespace BusinessLayer
             return  await clsUserData.DeleteUser(UserID);
         }
 
-        public static async Task<List<UserFullDTO>> GetAllUsers()
+        public static async Task<List<UserPrefDTO>> GetAllUsers()
         {
             return await clsUserData.GetAllUsers();
         }

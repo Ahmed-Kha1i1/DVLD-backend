@@ -1,4 +1,5 @@
 ﻿using DVLDApi.Profiles;
+using Microsoft.AspNetCore.StaticFiles;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -17,9 +18,10 @@ namespace DVLDApi
             {
                 options.AddPolicy(AllowSpicificOrigin, policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173");
+                    policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
                 });
             });
+            builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             

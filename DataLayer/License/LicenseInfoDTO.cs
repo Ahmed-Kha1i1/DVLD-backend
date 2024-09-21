@@ -15,4 +15,6 @@
         public int CreatedByUserID { get; set; }
 
     }
+
+    
 }

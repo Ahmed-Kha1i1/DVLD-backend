@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.ApplicationsDescendants.Applications;
 using BusinessLayerCore;
+using DataLayer.Driver;
 using DataLayerCore.Application;
 using DataLayerCore.ApplicationType;
 using DataLayerCore.InternationalLicense;
@@ -130,7 +131,7 @@ namespace BusinessLayer.InternationalLicense
         {
             return await clsInternationalLicenseData.GetInternationalLicenses();
         }
-        public static async Task<List<InternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
+        public static async Task<List<DriverInternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
         {
             return await  clsInternationalLicenseData.GetInternationalLicenses(DriverID);
         }

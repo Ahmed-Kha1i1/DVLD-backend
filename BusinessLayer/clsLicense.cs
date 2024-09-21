@@ -10,6 +10,7 @@ using DataLayerCore.ApplicationType;
 using DataLayerCore.License;
 using BusinessLayerCore;
 using DataLayerCore.DetainedLicense;
+using DataLayerCore.Driver;
 
 
 namespace BusinessLayer.License
@@ -188,7 +189,7 @@ namespace BusinessLayer.License
         {
             return await clsLicenseData.GetLicenses();
         }
-        public static async Task<List<LicenseInfoDTO>> GetDriverLicenses(int DriverID)
+        public static async Task<List<DriverLicenseDTO>> GetDriverLicenses(int DriverID)
         {
             return await clsLicenseData.GetDriverLicenses(DriverID);
         }

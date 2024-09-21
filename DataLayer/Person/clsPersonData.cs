@@ -88,13 +88,13 @@ namespace DataLayerCore.Person
                     Command.Parameters.AddWithValue("@Email", Person.Email);
                 }
                 Command.Parameters.AddWithValue("@NationalityCountryID", Person.NationalityCountryID);
-                if (string.IsNullOrWhiteSpace(Person.ImagePath))
+                if (string.IsNullOrWhiteSpace(Person.ImageName))
                 {
-                    Command.Parameters.AddWithValue("@ImagePath", DBNull.Value);
+                    Command.Parameters.AddWithValue("@ImageName", DBNull.Value);
                 }
                 else
                 {
-                    Command.Parameters.AddWithValue("@ImagePath", Person.ImagePath);
+                    Command.Parameters.AddWithValue("@ImageName", Person.ImageName);
                 }
                 object? result = await Command.ExecuteScalarAsync();
 
@@ -143,13 +143,13 @@ namespace DataLayerCore.Person
                     Command.Parameters.AddWithValue("@Email", Person.Email);
                 }
                 Command.Parameters.AddWithValue("@NationalityCountryID", Person.NationalityCountryID);
-                if (string.IsNullOrWhiteSpace(Person.ImagePath))
+                if (string.IsNullOrWhiteSpace(Person.ImageName))
                 {
-                    Command.Parameters.AddWithValue("@ImagePath", DBNull.Value);
+                    Command.Parameters.AddWithValue("@ImageName", DBNull.Value);
                 }
                 else
                 {
-                    Command.Parameters.AddWithValue("@ImagePath", Person.ImagePath);
+                    Command.Parameters.AddWithValue("@ImageName", Person.ImageName);
                 }
 
                 RowAffected = await Command.ExecuteNonQueryAsync();

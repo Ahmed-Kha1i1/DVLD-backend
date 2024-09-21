@@ -1,10 +1,11 @@
 ﻿namespace DataLayerCore.Driver
 {
-    public class DriverDTO
+    public class DriverPrefDTO 
     {
         public int DriverID { get; set; }
         public int PersonID { get; set; }
-        public int CreatedByUserID { get; set; }
+        public string NationalNo { get; set; }
+        public string FullName { get; set; }
         public DateTime CreatedDate { get; set; }
         public byte NumberofActiveLicenses { get; set; }
     }

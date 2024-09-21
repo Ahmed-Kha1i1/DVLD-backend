@@ -1,5 +1,6 @@
 ﻿using DataLayerCore;
 using DataLayerCore.Datahandler;
+using DataLayerCore.Driver;
 using Microsoft.Data.SqlClient;
 using System.ComponentModel;
 using System.Data;
@@ -140,9 +141,9 @@ namespace DataLayerCore.License
             return list;
         }
 
-        public static async Task<List<LicenseInfoDTO>> GetDriverLicenses(int DriverID)
+        public static async Task<List<DriverLicenseDTO>> GetDriverLicenses(int DriverID)
         {
-            var list = new List<LicenseInfoDTO>();
+            var list = new List<DriverLicenseDTO>();
             await DataSendhandler.handle("SP_FindDriverLicenses", async (Connection, Command) =>
             {
                 Command.Parameters.AddWithValue("@DriverID", DriverID);
@@ -151,7 +152,7 @@ namespace DataLayerCore.License
                 {
                     while (Reader.Read())
                     {
-                        list.Add(Reader.MapTo<LicenseInfoDTO>());
+                        list.Add(Reader.MapTo<DriverLicenseDTO>());
                     }
                 }
             });

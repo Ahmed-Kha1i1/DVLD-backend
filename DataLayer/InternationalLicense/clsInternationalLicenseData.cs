@@ -1,4 +1,5 @@
-﻿using DataLayerCore;
+﻿using DataLayer.Driver;
+using DataLayerCore;
 using DataLayerCore.Datahandler;
 using Microsoft.Data.SqlClient;
 using System;
@@ -119,9 +120,9 @@ namespace DataLayerCore.InternationalLicense
             return list;
         }
 
-        public static async Task<List<InternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
+        public static async Task<List<DriverInternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
         {
-            var list = new List<InternationalLicenseDTO>();
+            var list = new List<DriverInternationalLicenseDTO>();
             await DataSendhandler.handle("SP_GetAllInternationalLicensesByDriverId", async (Connection, Command) =>
             {
                 Command.Parameters.AddWithValue("@DriverID", DriverID);
@@ -130,7 +131,7 @@ namespace DataLayerCore.InternationalLicense
                 {
                     while (Reader.Read())
                     {
-                        list.Add(Reader.MapTo<InternationalLicenseDTO>());
+                        list.Add(Reader.MapTo<DriverInternationalLicenseDTO>());
                     }
                 }
             });

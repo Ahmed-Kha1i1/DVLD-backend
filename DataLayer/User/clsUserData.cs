@@ -125,9 +125,9 @@ namespace DataLayerCore.User
             return RowAffected > 0;
         }
 
-        public static async Task<List<UserFullDTO>> GetAllUsers()
+        public static async Task<List<UserPrefDTO>> GetAllUsers()
         {
-            var list = new List<UserFullDTO>();
+            var list = new List<UserPrefDTO>();
             await DataSendhandler.handle("SP_GetAllUsers", async (Connection, Command) =>
             {
                 Connection.Open();
@@ -135,7 +135,7 @@ namespace DataLayerCore.User
                 {
                     while (Reader.Read())
                     {
-                        list.Add(Reader.MapTo<UserFullDTO>());
+                        list.Add(Reader.MapTo<UserPrefDTO>());
                     }
                 }
             });

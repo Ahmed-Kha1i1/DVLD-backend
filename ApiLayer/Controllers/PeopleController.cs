@@ -2,6 +2,8 @@
 using BusinessLayer;
 using DataLayerCore.Person;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using static DVLDApi.Helpers.ApiResponse;
 
 namespace DVLDApi.Controllers
@@ -11,7 +13,7 @@ namespace DVLDApi.Controllers
     public class PeopelController : ControllerBase
     {
         private readonly IMapper _mapper;
-
+        
         public PeopelController(IMapper mapper)
         {
             _mapper = mapper;
@@ -33,7 +35,9 @@ namespace DVLDApi.Controllers
                 return NotFound(CreateResponse(StatusFail, "Person not found"));
             }
 
-            return Ok(CreateResponse(StatusSuccess, _mapper.Map<PersonFullDTO>(person)));
+            var personDto = _mapper.Map<PersonFullDTO>(person);
+
+            return Ok(CreateResponse(StatusSuccess, personDto));
         }
 
         [HttpPost(Name = "AddPerson")]
@@ -106,16 +110,25 @@ namespace DVLDApi.Controllers
                 return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
             }
 
+            var personExists = await clsPerson.IsPersonExists(personId);
+
+            if (!personExists)
+            {
+                return NotFound(CreateResponse(StatusFail, "Person not found"));
+            }
+
             if (await clsPerson.DeletePerson(personId))
             {
-                var result = CreateResponse(StatusSuccess, $"Person with ID {personId} has been deleted.");
+                var result = CreateResponse(StatusSuccess, $"Person with id {personId} has been deleted.");
                 return Ok(result);
             }
             else
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error deleting person"));
+                return StatusCode(StatusCodes.Status409Conflict, CreateResponse(StatusFail, $"Cannot delete person with id {personId}"));
             }
         }
+
+        
 
         [HttpGet("All", Name = "GetAllPersons")]
         [ProducesResponseType(StatusCodes.Status200OK)]

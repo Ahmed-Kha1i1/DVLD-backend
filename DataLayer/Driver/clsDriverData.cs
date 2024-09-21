@@ -88,9 +88,9 @@ namespace DataLayerCore.Driver
             return RowAffected > 0;
         }
 
-        public static async Task<List<DriverFullDTO>> GetAllDrivers()
+        public static async Task<List<DriverPrefDTO>> GetAllDrivers()
         {
-            var list = new List<DriverFullDTO>();
+            var list = new List<DriverPrefDTO>();
             await DataSendhandler.handle("SP_GetAllDrivers", async (Connection, Command) =>
             {
                 Connection.Open();
@@ -98,7 +98,7 @@ namespace DataLayerCore.Driver
                 {
                     while (Reader.Read())
                     {
-                        list.Add(Reader.MapTo<DriverFullDTO>());
+                        list.Add(Reader.MapTo<DriverPrefDTO>());
                     }
                 }
             });

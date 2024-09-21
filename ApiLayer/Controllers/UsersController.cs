@@ -113,11 +113,12 @@ namespace DVLDApi.Controllers
 
             if (await clsUser.DeleteUser(userId))
             {
-                return NoContent();
+                var result = CreateResponse(StatusSuccess, $"User with id {userId} has been deleted.");
+                return Ok(result);
             }
             else
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error deleting user"));
+                return StatusCode(StatusCodes.Status409Conflict, CreateResponse(StatusFail, $"Cannot delete user with id {userId}"));
             }
         }
 

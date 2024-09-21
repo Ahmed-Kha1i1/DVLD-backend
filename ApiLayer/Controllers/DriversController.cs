@@ -35,7 +35,7 @@ namespace DVLDApi.Controllers
                 return NotFound(CreateResponse(StatusFail, "Driver not found"));
             }
 
-            return Ok(CreateResponse(StatusSuccess, _mapper.Map<DriverDTO>(driver)));
+            return Ok(CreateResponse(StatusSuccess, _mapper.Map<DriverFullDTO>(driver)));
         }
 
         [HttpGet("ByPersonId/{PersonId}", Name = "GetDriverByPersonId")]
@@ -151,7 +151,7 @@ namespace DVLDApi.Controllers
 
             if (licenses.Count == 0)
             {
-                return NotFound(CreateResponse(StatusFail, "No licenses found for this driver"));
+                return Ok(CreateResponse(StatusSuccess, "No licenses found for this driver"));
             }
 
             var result = CreateResponse(StatusSuccess, new { length = licenses.Count, data = licenses });
@@ -172,7 +172,7 @@ namespace DVLDApi.Controllers
 
             if (internationalLicenses.Count == 0)
             {
-                return NotFound(CreateResponse(StatusFail, "No international licenses found for this driver"));
+                return Ok(CreateResponse(StatusSuccess, "No international licenses found for this driver"));
             }
 
             var result = CreateResponse(StatusSuccess, new { length = internationalLicenses.Count, data = internationalLicenses });

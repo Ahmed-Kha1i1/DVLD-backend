@@ -16,6 +16,10 @@ namespace BusinessLayerCore.Profiles
             CreateMap<UserForCreateDTO, clsUser>().ReverseMap();
             CreateMap<UserForUpdateDTO, clsUser>().ReverseMap();
             CreateMap<UserDTO, clsUser>();
+            CreateMap<clsUser, UserPrefDTO>();
+            CreateMap<clsUser, UserFullDTO>().ForMember(dest => dest.Person,
+                       opt => opt.MapFrom(src => src.PersonInfo)) ;
+            CreateMap<UserPrefDTO, UserFullDTO>();
             
         }
     }

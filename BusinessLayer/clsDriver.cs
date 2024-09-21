@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.InternationalLicense;
 using BusinessLayer.License;
 using BusinessLayerCore;
+using DataLayer.Driver;
 using DataLayerCore.Driver;
 using DataLayerCore.InternationalLicense;
 using DataLayerCore.License;
@@ -30,7 +31,7 @@ namespace BusinessLayer
         public int? PersonID { set; get; }
         public int? CreatedByUserID { set; get; }
         public DateTime CreatedDate { get; set; }
-
+        public byte NumberofActiveLicenses { get; set; }
 
         public clsDriver()
 
@@ -39,7 +40,7 @@ namespace BusinessLayer
             this.PersonID = null;
             this.CreatedByUserID = null;
             this.CreatedDate = DateTime.Now;
-
+            this.NumberofActiveLicenses = 0;
             Mode = enMode.AddNew;
 
         }
@@ -51,6 +52,7 @@ namespace BusinessLayer
             this.PersonID = Driver.PersonID;
             this.CreatedByUserID = Driver.CreatedByUserID;
             this.CreatedDate = Driver.CreatedDate;
+            this.NumberofActiveLicenses = Driver.NumberofActiveLicenses;
 
             Mode = enMode.Update;
         }
@@ -111,7 +113,7 @@ namespace BusinessLayer
 
        
 
-        public static async Task<List<DriverFullDTO>> GetAllDrivers()
+        public static async Task<List<DriverPrefDTO>> GetAllDrivers()
         {
             return await clsDriverData.GetAllDrivers();
 
@@ -142,12 +144,12 @@ namespace BusinessLayer
             return false;
         }
 
-        public static async Task<List<LicenseInfoDTO>>GetLicenses(int DriverID)
+        public static async Task<List<DriverLicenseDTO>>GetLicenses(int DriverID)
         {
             return await clsLicense.GetDriverLicenses(DriverID);
         }
 
-        public static async Task<List<InternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
+        public static async Task<List<DriverInternationalLicenseDTO>> GetInternationalLicenses(int DriverID)
         {
             return await clsInternationalLicense.GetInternationalLicenses(DriverID);
         }

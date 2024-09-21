@@ -47,7 +47,8 @@ namespace BusinessLayer
         public string? Email { get; set; }
         public int? NationalityCountryID { get; set; }
         public clsCountry? CountryInfo;
-        public string? ImagePath { get; set; }
+        public string? ImageName { get; set; }
+        
 
 
         public clsPerson()
@@ -64,7 +65,7 @@ namespace BusinessLayer
             Phone = "";
             Email = "";
             NationalityCountryID = null;
-            ImagePath = "";
+            ImageName = "";
 
             Mode = enMode.AddNew;
         }
@@ -83,7 +84,7 @@ namespace BusinessLayer
             this.Phone = Person.Phone;
             this.Email = Person.Email;
             this.NationalityCountryID = Person.NationalityCountryID;
-            this.ImagePath = Person.ImagePath;
+            this.ImageName = Person.ImageName;
             Mode = enMode.Update;
         }
 
