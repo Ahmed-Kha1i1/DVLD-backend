@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.InternationalLicense;
 using DataLayerCore.InternationalLicense;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("InternationalLicenseID")]
         public async Task<IActionResult> GetInternationalLicense(int InternationalLicenseID)
         {
             if (InternationalLicenseID < 0)
@@ -67,6 +69,7 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("id")]
         public async Task<IActionResult> UpdateInternationalLicense(int id, InternationalLicenseForUpdateDTO internationalLicenseDTO)
         {
             if (internationalLicenseDTO == null)
@@ -74,10 +77,7 @@ namespace DVLDApi.Controllers
                 return BadRequest(CreateResponse(StatusFail, "International license object cannot be null"));
             }
 
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid international license ID"));
-            }
+
 
             var internationalLicense = await clsInternationalLicense.FindInternationalLicense(id);
 
@@ -106,10 +106,7 @@ namespace DVLDApi.Controllers
         {
             var licensesList = await clsInternationalLicense.GetInternationalLicenses();
 
-            if (licensesList.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No international licenses found!"));
-            }
+
 
             var result = CreateResponse(StatusSuccess, new { length = licensesList.Count, data = licensesList });
             return Ok(result);
@@ -118,18 +115,13 @@ namespace DVLDApi.Controllers
         [HttpGet("ByDriver/{DriverID}", Name = "GetInternationalLicensesByDriver")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("DriverID")]
         public async Task<IActionResult> GetInternationalLicensesByDriver(int DriverID)
         {
-            if (DriverID < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid Driver ID"));
-            }
+
             var licenses = await clsInternationalLicense.GetInternationalLicenses(DriverID);
 
-            if (licenses.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No international licenses found for driver!"));
-            }
+
 
             return Ok(CreateResponse(StatusSuccess, licenses));
         }
@@ -137,12 +129,11 @@ namespace DVLDApi.Controllers
         [HttpGet("ActiveByDriver/{DriverID}", Name = "GetActiveInternationalLicenseByDriver")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("DriverID")]
+
         public async Task<IActionResult> GetActiveInternationalLicenseByDriver(int DriverID)
         {
-            if (DriverID < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid Driver ID"));
-            }
+
 
             var activeLicenseID = await clsInternationalLicense.GetActiveInternationalLicenseIDByDriverID(DriverID);
 

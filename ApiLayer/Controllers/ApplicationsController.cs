@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.ApplicationsDescendants.Applications;
 using DataLayerCore.Application;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +22,9 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("ApplicationId")]
         public async Task<IActionResult> GetApplication(int ApplicationId)
         {
-            if(ApplicationId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail,"Invalid application id"));
-            }
             clsApplication? Application = await clsApplication.FindApplication(ApplicationId);
 
             if (Application is null)
@@ -52,7 +50,7 @@ namespace DVLDApi.Controllers
 
             if (await application.Save())
             {
-                var result = CreateResponse(StatusSuccess,_mapper.Map<ApplicationDTO>(application));
+                var result = CreateResponse(StatusSuccess, _mapper.Map<ApplicationDTO>(application));
                 return CreatedAtRoute("GetApplicationById", new { ApplicationId = application.ApplicationID }, result);
             }
             else
@@ -67,6 +65,7 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("id")]
         public async Task<IActionResult> UpdateApplication(int id, ApplicationForUpdateDTO ApplicationDTO)
         {
             if (ApplicationDTO == null)
@@ -74,10 +73,7 @@ namespace DVLDApi.Controllers
                 return BadRequest(CreateResponse(StatusFail, "Application object cann't be null"));
             }
 
-            if(id < 1 )
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid application id"));
-            }
+
 
             clsApplication? application = await clsApplication.FindApplication(id);
 
@@ -105,12 +101,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> DeleteApplication(int id)
         {
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid application id"));
-            }
+
 
             if (await clsApplication.DeleteApplication(id))
             {
@@ -131,10 +125,6 @@ namespace DVLDApi.Controllers
         {
             var ApplicationsList = await clsApplication.GetApplications();
 
-            if (ApplicationsList.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No applications found!"));
-            }
 
             var result = CreateResponse(StatusSuccess, new { length = ApplicationsList.Count, data = ApplicationsList });
             return Ok(result);

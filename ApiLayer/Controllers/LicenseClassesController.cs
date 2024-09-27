@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.LicenseClass;
 using DataLayerCore.LicenseClass;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +21,11 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("licenseClassId")]
+
         public async Task<IActionResult> GetLicenseClass(int licenseClassId)
         {
-            if (licenseClassId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid license class id"));
-            }
+
 
             var licenseClass = await clsLicenseClass.Find(licenseClassId);
 
@@ -63,10 +63,7 @@ namespace DVLDApi.Controllers
         public async Task<IActionResult> GetAllLicenseClasss()
         {
             var licenseClasss = await clsLicenseClass.GetAllLicenseClasses();
-            if (licenseClasss.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No license classs found!"));
-            }
+
 
             return Ok(CreateResponse(StatusSuccess, new { length = licenseClasss.Count, data = licenseClasss }));
         }

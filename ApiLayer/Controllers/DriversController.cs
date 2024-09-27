@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer;
 using DataLayerCore.Driver;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +22,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("DriverID")]
+
         public async Task<IActionResult> GetDriver(int DriverID)
         {
-            if (DriverID < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid driver ID"));
-            }
 
             clsDriver? driver = await clsDriver.FindByDriverID(DriverID);
 
@@ -42,12 +41,11 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("PersonId")]
+
         public async Task<IActionResult> GetDriverByPersonId(int PersonId)
         {
-            if (PersonId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid perosn ID"));
-            }
+
 
             clsDriver? driver = await clsDriver.FindByPersonID(PersonId);
 
@@ -88,6 +86,8 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("id")]
+
         public async Task<IActionResult> UpdateDriver(int id, DriverForUpdateDTO driverDTO)
         {
             if (driverDTO == null)
@@ -95,10 +95,7 @@ namespace DVLDApi.Controllers
                 return BadRequest(CreateResponse(StatusFail, "Driver object cannot be null"));
             }
 
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid driver ID"));
-            }
+
 
             clsDriver? driver = await clsDriver.FindByDriverID(id);
 
@@ -128,10 +125,7 @@ namespace DVLDApi.Controllers
         {
             var driversList = await clsDriver.GetAllDrivers();
 
-            if (driversList.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No drivers found!"));
-            }
+
 
             var result = CreateResponse(StatusSuccess, new { length = driversList.Count, data = driversList });
 
@@ -141,18 +135,13 @@ namespace DVLDApi.Controllers
         [HttpGet("{DriverID}/Licenses", Name = "GetDriverLicenses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("DriverID")]
+
         public async Task<IActionResult> GetDriverLicenses(int DriverID)
         {
-            if(DriverID < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid driver ID"));
-            }
+
             var licenses = await clsDriver.GetLicenses(DriverID);
 
-            if (licenses.Count == 0)
-            {
-                return Ok(CreateResponse(StatusSuccess, "No licenses found for this driver"));
-            }
 
             var result = CreateResponse(StatusSuccess, new { length = licenses.Count, data = licenses });
             return Ok(result);
@@ -161,19 +150,14 @@ namespace DVLDApi.Controllers
         [HttpGet("{DriverID}/InternationalLicenses", Name = "GetDriverInternationalLicenses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("DriverID")]
+
         public async Task<IActionResult> GetDriverInternationalLicenses(int DriverID)
         {
-            if (DriverID < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid driver ID"));
-            }
+
 
             var internationalLicenses = await clsDriver.GetInternationalLicenses(DriverID);
 
-            if (internationalLicenses.Count == 0)
-            {
-                return Ok(CreateResponse(StatusSuccess, "No international licenses found for this driver"));
-            }
 
             var result = CreateResponse(StatusSuccess, new { length = internationalLicenses.Count, data = internationalLicenses });
             return Ok(result);

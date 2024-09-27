@@ -1,12 +1,11 @@
-﻿using System.Xml.Serialization;
-
-namespace DVLDApi.Helpers
+﻿namespace DVLDApi.Helpers
 {
     public class ApiResponse
     {
         public static string StatusSuccess = "success";
         public static string StatusFail = "fail";
         public static string StatusError = "error";
+        public static string StatusPartialSuccess = "partial_success";
 
 
         public static object CreateResponse(string Status)
@@ -26,7 +25,7 @@ namespace DVLDApi.Helpers
             };
         }
 
-        public static object CreateResponse(string Status, object Data)
+        public static object CreateResponse(string Status, object? Data)
         {
             return new
             {
@@ -35,7 +34,7 @@ namespace DVLDApi.Helpers
             };
         }
 
-        public static object CreateResponse(string Status, string Message, object Data)
+        public static object CreateResponse(string Status, string Message, object? Data)
         {
             return new
             {

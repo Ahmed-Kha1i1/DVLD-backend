@@ -3,7 +3,7 @@
     public class PersonDTO : PersonBaseDTO
     {
 
-        public enGender Gendor { get; set; }
+        public enGender Gender { get; set; }
         public int NationalityCountryID { get; set; }
 
     }

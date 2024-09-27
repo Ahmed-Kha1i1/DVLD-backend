@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer;
 using DataLayerCore.User;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +21,10 @@ namespace DVLDApi.Controllers
         [HttpGet("{userId}", Name = "GetUserById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("userId")]
         public async Task<IActionResult> GetUser(int userId)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
+
 
             var user = await clsUser.FindUser(userId);
             if (user == null)
@@ -64,12 +63,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("userId")]
         public async Task<IActionResult> UpdateUser(int userId, UserForUpdateDTO userDTO)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
+
 
             if (userDTO == null)
             {
@@ -98,12 +95,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("userId")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
+
 
             var userExists = await clsUser.IsUserExistByUserID(userId);
             if (!userExists)
@@ -128,22 +123,17 @@ namespace DVLDApi.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await clsUser.GetAllUsers();
-            if (users.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No users found!"));
-            }
+
             return Ok(CreateResponse(StatusSuccess, new { length = users.Count, data = users }));
         }
 
         [HttpGet("Exists/{userId}", Name = "IsUserExistByUserId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("userId")]
         public async Task<IActionResult> IsUserExistByUserId(int userId)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
+
 
             var exists = await clsUser.IsUserExistByUserID(userId);
             return Ok(CreateResponse(StatusSuccess, exists));
@@ -152,12 +142,9 @@ namespace DVLDApi.Controllers
         [HttpGet("Exists/Person/{personId}", Name = "IsUserExistByPersonId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("personId")]
         public async Task<IActionResult> IsUserExistByPersonId(int personId)
         {
-            if (personId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-            }
 
             var exists = await clsUser.IsUserExistByPersonID(personId);
             return Ok(CreateResponse(StatusSuccess, exists));
@@ -180,12 +167,9 @@ namespace DVLDApi.Controllers
         [HttpGet("Active/{userId}", Name = "IsUserActive")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("userId")]
         public async Task<IActionResult> IsUserActive(int userId)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
 
             var isActive = await clsUser.IsUserActive(userId);
             return Ok(CreateResponse(StatusSuccess, isActive));
@@ -195,13 +179,9 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("userId")]
         public async Task<IActionResult> UpdatePassword(int userId, [FromBody] string newPassword)
         {
-            if (userId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-            }
-
             var userExists = await clsUser.IsUserExistByUserID(userId);
             if (!userExists)
             {

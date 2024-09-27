@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.Country;
 using DataLayerCore.Country;
-using DVLDApi.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using static DVLDApi.Helpers.ApiResponse;
 
@@ -21,21 +21,19 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("CountryId")]
         public async Task<ActionResult<CountryDTO>> GetCountry(int CountryId)
         {
-            if(CountryId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid country id"));
-            }
+
 
             clsCountry? Country = await clsCountry.Find(CountryId);
 
-            if(Country is null)
+            if (Country is null)
             {
                 return NotFound(CreateResponse(StatusFail, "Country not found"));
             }
             var CountryDTO = _mapper.Map<CountryDTO>(Country);
-            return Ok(CreateResponse(StatusSuccess, CountryDTO) );
+            return Ok(CreateResponse(StatusSuccess, CountryDTO));
         }
 
 
@@ -61,19 +59,14 @@ namespace DVLDApi.Controllers
             return Ok(CreateResponse(StatusSuccess, CountryDTO));
         }
 
-        [HttpGet("All", Name = "GetAllCountries")] 
+        [HttpGet("All", Name = "GetAllCountries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<CountryDTO>>> GetAllCountries() 
+        public async Task<ActionResult<List<CountryDTO>>> GetAllCountries()
         {
             var CountriesList = await clsCountry.GetAllCountries();
 
-            if (CountriesList.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No countries found!"));
-            }
-
-            return Ok(CreateResponse(StatusSuccess, new { Length = CountriesList.Count,data = CountriesList }));
+            return Ok(CreateResponse(StatusSuccess, new { Length = CountriesList.Count, data = CountriesList }));
         }
     }
 }

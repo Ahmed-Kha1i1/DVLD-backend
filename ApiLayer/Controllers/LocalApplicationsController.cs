@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.NewLocalLicesnse;
 using DataLayerCore.LocalDrivingLicenseApplication;
 using DataLayerCore.Test;
@@ -24,12 +25,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> GetLocalApplication(int id)
         {
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid local application id"));
-            }
+
 
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
             if (application == null)
@@ -47,12 +46,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> GetLocalApplicationByApplicationID(int id)
         {
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid application id"));
-            }
+
 
             var application = await clsLocalDrivingLicenseApplication.FindByApplicationID(id);
             if (application == null)
@@ -91,6 +88,7 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("id")]
         public async Task<IActionResult> UpdateLocalDrivingLicenseApplication(int id, LocalDrivingLicenseApplicationForUpdateDTO applicationDTO)
         {
             if (applicationDTO == null)
@@ -117,12 +115,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("id")]
         public async Task<IActionResult> DeleteLocalDrivingLicenseApplication(int id)
         {
-            if (id < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid local application id"));
-            }
+
 
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
             if (application == null)
@@ -145,16 +141,13 @@ namespace DVLDApi.Controllers
         {
             var applications = await clsLocalDrivingLicenseApplication.GetLocalDrivingLicenseApplications();
 
-            if (applications.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No applications found!"));
-            }
 
             return Ok(CreateResponse(StatusSuccess, new { length = applications.Count, data = applications }));
         }
         [HttpGet("{id}/tests/{testTypeId}/pass", Name = "DoesPassTestType")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> DoesPassTestType(int id, enTestType testTypeId)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -173,6 +166,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/tests/{testTypeId}/passPrevies", Name = "DoesPassPreviousTest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> DoesPassPreviousTest(int id, enTestType testTypeId)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -190,6 +184,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/tests/{testTypeId}/attend", Name = "DoesAttendTestType")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> DoesAttendTestType(int id, enTestType testTypeId)
         {
 
@@ -207,6 +202,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/tests/{testTypeId}/trials", Name = "TotalTrialsPerTest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> TotalTrialsPerTest(int id, enTestType testTypeId)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -225,6 +221,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/tests/{testTypeId}/active", Name = "IsThereAnActiveScheduledTes")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> IsThereAnActiveScheduledTes(int id, enTestType testTypeId)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -239,6 +236,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/passCount", Name = "GetTestpassCount")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> GetTestpassCount(int id)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -254,6 +252,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/IsIssued", Name = "IsLicenseIssued")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> IsLicenseIssued(int id)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -270,6 +269,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/ActiveLicenseID", Name = "GetActiveLicenseID")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> GetActiveLicenseID(int id)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -286,6 +286,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/tests/{testTypeId}/LastTest", Name = "GetLastTestPerTestType")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id", "testTypeId")]
         public async Task<IActionResult> GetLastTestPerTestType(int id, enTestType TestTypeID)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -296,7 +297,7 @@ namespace DVLDApi.Controllers
 
             var Test = await application.GetLastTestPerTestType(TestTypeID);
 
-            if(Test == null)
+            if (Test == null)
             {
                 return NotFound(CreateResponse(StatusFail, $"Application with ID {id} has no test yet."));
             }
@@ -307,6 +308,7 @@ namespace DVLDApi.Controllers
         [HttpGet("{id}/passAll", Name = "passedAllTest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> passedAllTest(int id)
         {
             var application = await clsLocalDrivingLicenseApplication.FindByID(id);
@@ -318,11 +320,12 @@ namespace DVLDApi.Controllers
             bool result = await application.passedAllTest();
             return Ok(CreateResponse(StatusSuccess, result));
         }
-        
-        
+
+
         [HttpPost("{id}/issue")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("id")]
         public async Task<IActionResult> IssueLocalLicense(int id, IssueLocalLicenseDTO issueLocalLicenseDTO)
         {
 
@@ -345,6 +348,5 @@ namespace DVLDApi.Controllers
 
     }
 }
-         
 
-    
+

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.Tests.Test_Appointment;
 using DataLayerCore.TestAppointment;
 using DataLayerCore.TestType;
@@ -21,12 +22,9 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("testAppointmentId")]
         public async Task<IActionResult> GetTestAppointment(int testAppointmentId)
         {
-            if (testAppointmentId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test appointment id"));
-            }
             var testAppointment = await clsTestAppointment.Find(testAppointmentId);
 
             if (testAppointment is null)
@@ -65,12 +63,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("testAppointmentId")]
         public async Task<IActionResult> UpdateTestAppointment(int testAppointmentId, TestAppointmentForUpdateDTO testAppointmentDTO)
         {
-            if (testAppointmentId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test appointment id"));
-            }
+
 
             if (testAppointmentDTO == null)
             {
@@ -95,26 +91,15 @@ namespace DVLDApi.Controllers
             }
         }
 
-        [HttpGet("All/{testTypeId}/{localDrivingLicenseApplicationId}", Name = "GetAllTestAppointments")]
+        [HttpGet("All/{testTypeId}/{localApplicationId}", Name = "GetAllTestAppointments")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAllTestAppointments(enTestType testTypeId, int localDrivingLicenseApplicationId)
+        [ValidateId("testTypeId", "localApplicationId")]
+        public async Task<IActionResult> GetAllTestAppointments(enTestType testTypeId, int localApplicationId)
         {
-            if (testTypeId == enTestType.None)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test type"));
-            }
 
-            if (localDrivingLicenseApplicationId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid local application id"));
-            }
+            var testAppointments = await clsTestAppointment.GetAllTestAppointments(testTypeId, localApplicationId);
 
-            var testAppointments = await clsTestAppointment.GetAllTestAppointments(testTypeId, localDrivingLicenseApplicationId);
-            if (testAppointments.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No test appointments found!"));
-            }
 
             return Ok(CreateResponse(StatusSuccess, new { length = testAppointments.Count, data = testAppointments }));
         }
@@ -123,12 +108,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("testAppointmentId")]
         public async Task<IActionResult> DeleteTestAppointment(int testAppointmentId)
         {
-            if (testAppointmentId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test appointment id"));
-            }
+
 
             var deleted = await clsTestAppointment.DeleteTestAppointment(testAppointmentId);
             if (!deleted)
@@ -139,20 +122,12 @@ namespace DVLDApi.Controllers
             return NoContent();
         }
 
-        [HttpGet("Last/{localDrivingLicenseApplicationId}/{testTypeId}", Name = "GetLastTestAppointment")]
+        [HttpGet("Last/{localApplicationId}/{testTypeId}", Name = "GetLastTestAppointment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("testTypeId", "localApplicationId")]
         public async Task<IActionResult> GetLastTestAppointment(int localDrivingLicenseApplicationId, enTestType testTypeId)
         {
-            if (testTypeId == enTestType.None)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test type"));
-            }
-
-            if (localDrivingLicenseApplicationId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid local application id"));
-            }
 
             var testAppointment = await clsTestAppointment.FindLastTestAppointment(localDrivingLicenseApplicationId, testTypeId);
             if (testAppointment is null)
@@ -167,12 +142,9 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("testAppointmentId")]
         public async Task<IActionResult> LockTestAppointment(int testAppointmentId)
         {
-            if (testAppointmentId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test appointment id"));
-            }
 
             if (await clsTestAppointment.LockAppointment(testAppointmentId))
             {

@@ -2,7 +2,7 @@
 {
     public class PersonFullDTO : PersonBaseDTO
     {
-        public string Gendor { get; set; }
+        public string Gender { get; set; }
         public string CountryName { get; set; }
     }
 }

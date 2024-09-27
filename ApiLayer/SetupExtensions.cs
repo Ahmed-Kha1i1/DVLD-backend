@@ -1,54 +1,85 @@
-﻿using DVLDApi.Profiles;
+﻿using ApiLayer.Configurations;
+using ApiLayer.ExceptionsHandlers;
+using ApiLayer.Services;
+using ApiLayer.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.StaticFiles;
-using System.Diagnostics;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DVLDApi
 {
-    public static class SetupExtensions
+    public class Startup
     {
-        static string AllowSpicificOrigin = "_AllowSpicificOrigin";
-        public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+        private string AllowSpicificOrigin = "_AllowSpicificOrigin";
+        private readonly IConfigurationRoot _configuration;
+        public Startup(IConfigurationRoot configuration)
         {
-            builder.Services.AddControllers();
-            builder.Services.AddAutoMapper(Assembly.Load("BusinessLayer"));
-            builder.Services.AddProblemDetails();
-            builder.Services.AddCors(options =>
+            _configuration = configuration;
+        }
+
+        public void ConfigureServices(IServiceCollection Services)
+        {
+            // Add framework services
+            Services.AddProblemDetails();
+            Services.AddControllers();
+            Services.AddHttpContextAccessor();
+
+            // Configure CORS
+            Services.AddCors(options =>
             {
                 options.AddPolicy(AllowSpicificOrigin, policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("Location");
                 });
             });
-            builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            
-            return builder.Build();
+
+            // Configure AutoMapper
+            Services.AddAutoMapper(Assembly.Load("BusinessLayer"), Assembly.GetExecutingAssembly());
+
+            // Configure Image Upload Options
+            Services.Configure<ImagesOptions>(_configuration.GetSection("ImageUpload"));
+
+            // Register services
+            Services.AddSingleton<FileExtensionContentTypeProvider>();
+            Services.AddSingleton<ImageService>();
+            Services.AddSingleton<PersonService>();
+
+            // Register Exceptions Handlers
+            Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+            // Add API documentation and exploration
+            Services.AddEndpointsApiExplorer();
+            Services.AddSwaggerGen();
+
+            // Configure Fluent Validation
+            ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+            Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
+            Services.AddFluentValidationAutoValidation(config =>
+            {
+                config.DisableBuiltInModelValidation = true;
+                config.EnableBodyBindingSourceAutomaticValidation = true;
+                config.EnableFormBindingSourceAutomaticValidation = true;
+                config.EnableQueryBindingSourceAutomaticValidation = true;
+                config.OverrideDefaultResultFactoryWith<ValidationResultFactory>();
+            });
         }
 
-        public static WebApplication ConfigurePipline(this WebApplication app)
+        public void Configure(WebApplication app)
         {
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            else
-            {
-                app.UseExceptionHandler();
-            }
 
+            app.UseExceptionHandler();
             app.UseHttpsRedirection();
-
             app.UseCors(AllowSpicificOrigin);
 
             app.UseAuthorization();
-
             app.MapControllers();
-
-            return app;
         }
     }
 }
+

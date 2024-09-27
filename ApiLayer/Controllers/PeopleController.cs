@@ -1,34 +1,25 @@
-﻿using AutoMapper;
+﻿using ApiLayer.DTOs.Person;
+using ApiLayer.Filters;
+using ApiLayer.Services;
+using AutoMapper;
 using BusinessLayer;
 using DataLayerCore.Person;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.FileProviders;
 using static DVLDApi.Helpers.ApiResponse;
 
 namespace DVLDApi.Controllers
 {
     [Route("api/People")]
     [ApiController]
-    public class PeopelController : ControllerBase
+    public class PeopelController(IMapper _mapper, ImageService _imageService) : ControllerBase
     {
-        private readonly IMapper _mapper;
-        
-        public PeopelController(IMapper mapper)
-        {
-            _mapper = mapper;
-        }
 
-        [HttpGet("{personId}", Name = "GetPersonById")]
+        [HttpGet("{personId:int}", Name = "GetPersonById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("personId")]
         public async Task<IActionResult> GetPerson(int personId)
         {
-            if (personId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-            }
-
             var person = await clsPerson.Find(personId);
             if (person == null)
             {
@@ -42,10 +33,12 @@ namespace DVLDApi.Controllers
 
         [HttpPost(Name = "AddPerson")]
         [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddPerson(PersonForCreateDTO personDTO)
+        public async Task<IActionResult> AddPerson([FromForm] PersonForCreateDTO? personDTO)
         {
+
             if (personDTO == null)
             {
                 return BadRequest(CreateResponse(StatusFail, "Person object can't be null"));
@@ -53,27 +46,46 @@ namespace DVLDApi.Controllers
 
             var person = _mapper.Map<clsPerson>(personDTO);
 
-            if (await person.Save())
-            {
-                return CreatedAtRoute("GetPersonById", new { personId = person.PersonID }, CreateResponse(StatusSuccess, person));
-            }
-            else
+            if (!await person.Save())
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error adding person"));
             }
+
+            if (personDTO.ImageFile is null)
+            {
+                return CreatedAtRoute("GetPersonById", new { personId = person.PersonID }, CreateResponse(StatusSuccess, new { person.PersonID }));
+            }
+
+            string ImageName = await _imageService.UploadImageAsync(personDTO.ImageFile);
+
+            if (string.IsNullOrEmpty(ImageName))
+            {
+                return StatusCode(StatusCodes.Status207MultiStatus,
+                    CreateResponse(StatusPartialSuccess, "Person was added successfully, but image upload failed", new { person.PersonID }));
+            }
+
+            person.ImageName = ImageName;
+
+            if (await person.Save())
+            {
+                return CreatedAtRoute("GetPersonById", new { personId = person.PersonID }, CreateResponse(StatusSuccess, new { person.PersonID }));
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status207MultiStatus,
+                    CreateResponse(StatusPartialSuccess, "Person was added successfully, but fail updating person with image name", new { person.PersonID }));
+            }
+
         }
 
-        [HttpPut("{personId}", Name = "UpdatePerson")]
+        [HttpPut("{personId:int}", Name = "UpdatePerson")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdatePerson(int personId, PersonForUpdateDTO personDTO)
+        [ValidateId("personId")]
+        public async Task<IActionResult> UpdatePerson(int personId, [FromForm] PersonForUpdateDTO personDTO)
         {
-            if (personId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-            }
 
             if (personDTO == null)
             {
@@ -87,28 +99,67 @@ namespace DVLDApi.Controllers
             }
 
             _mapper.Map(personDTO, person);
+            (enUpdateImage Replace, string newIMagepath) = await _imageService.ReplaceImageAsync(personDTO.ImageFile, person.ImageName, personDTO.RemoveImage);
 
+            if (Replace == enUpdateImage.UpdatedFail)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Image upload failed"));
+            }
+
+            if (Replace == enUpdateImage.DeletedFail)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Image delete failed"));
+            }
+
+            person.ImageName = Replace == enUpdateImage.Updated ? newIMagepath : Replace == enUpdateImage.DeletedWithoutUpdate ? null : person.ImageName;
+
+            if (!await person.Save())
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating person"));
+            }
+
+            return Ok(CreateResponse(StatusSuccess, "Person was updated successfully", _mapper.Map<PersonFullDTO>(person)));
+        }
+
+        [HttpPut("UpdateContact/{personId:int}", Name = "UpdateContactPerson")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("personId")]
+        public async Task<IActionResult> UpdateContactPerson(int personId, ContactPersonDTO personDTO)
+        {
+            if (personDTO == null)
+            {
+                return BadRequest(CreateResponse(StatusFail, "Person object can't be null"));
+            }
+
+            var person = await clsPerson.Find(personId);
+            if (person == null)
+            {
+                return NotFound(CreateResponse(StatusFail, $"Person with ID {personId} not found."));
+            }
+
+            _mapper.Map(personDTO, person);
             if (await person.Save())
             {
-                return Ok(CreateResponse(StatusSuccess, person));
+                var personDto = _mapper.Map<PersonFullDTO>(person);
+                return Ok(CreateResponse(StatusSuccess, "Person was updated successfully", personDto));
             }
             else
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating person"));
             }
         }
-
-        [HttpDelete("{personId}", Name = "DeletePerson")]
+        [HttpDelete("{personId:int}", Name = "DeletePerson")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("personId")]
         public async Task<IActionResult> DeletePerson(int personId)
         {
-            if (personId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-            }
+
 
             var personExists = await clsPerson.IsPersonExists(personId);
 
@@ -128,43 +179,67 @@ namespace DVLDApi.Controllers
             }
         }
 
-        
 
         [HttpGet("All", Name = "GetAllPersons")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllPersons()
         {
             var persons = await clsPerson.GetPeopleDetails();
-            if (persons.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No persons found!"));
-            }
-            return Ok(CreateResponse(StatusSuccess, new { length = persons.Count, data = persons } ));
+
+            return Ok(CreateResponse(StatusSuccess, new { length = persons.Count, data = persons }));
         }
 
-        [HttpGet("Exists/NationalNo/{nationalNo}", Name = "IsPersonExistsByNationalNo")]
+        [HttpGet("Unique/NationalNo/{nationalNo}", Name = "IsNationalNoUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> IsPersonExistsByNationalNo(string nationalNo)
+        public async Task<IActionResult> IsNationalNoUnique(string nationalNo)
         {
             if (string.IsNullOrEmpty(nationalNo))
             {
-                return BadRequest(CreateResponse(StatusFail, "Invalid national number"));
+                return BadRequest(CreateResponse(StatusFail, "National number is not valid"));
             }
 
-            var exists = await clsPerson.IsPersonExists(nationalNo);
-            return Ok(CreateResponse(StatusSuccess, exists));
+            var unique = await clsPerson.IsNationalNoUnique(nationalNo);
+            return Ok(CreateResponse(StatusSuccess, unique));
         }
 
-        [HttpGet("Exists/{personId}", Name = "IsPersonExistsById")]
+        [HttpGet("Unique/Email/{email}", Name = "IsEmaiUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> IsEmaiUnique(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(CreateResponse(StatusFail, "Email is not valid"));
+            }
+
+            var unique = await clsPerson.IsEmailUnique(email);
+            return Ok(CreateResponse(StatusSuccess, unique));
+        }
+
+        [HttpGet("Unique/Phone/{phone}", Name = "IsPhoneUnique")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> IsPhoneUnique(string phone)
+        {
+
+            if (string.IsNullOrEmpty(phone))
+            {
+                return BadRequest(CreateResponse(StatusFail, "Phone is not valid"));
+            }
+
+            var unique = await clsPerson.IsPhoneUnique(phone);
+            return Ok(CreateResponse(StatusSuccess, unique));
+        }
+
+
+        [HttpGet("Exists/{personId:int}", Name = "IsPersonExistsById")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ValidateId("personId")]
         public async Task<IActionResult> IsPersonExistsById(int personId)
         {
-            if (personId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-            }
+
 
 
             var exists = await clsPerson.IsPersonExists(personId);

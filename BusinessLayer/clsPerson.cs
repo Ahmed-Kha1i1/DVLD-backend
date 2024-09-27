@@ -1,12 +1,6 @@
 ﻿using BusinessLayer.Country;
 using BusinessLayerCore;
 using DataLayerCore.Person;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLayer
 {
@@ -15,7 +9,7 @@ namespace BusinessLayer
     {
         enum enMode { AddNew, Update }
         enMode Mode = enMode.AddNew;
-        
+
         public int? PersonID { get; set; }
         public string NationalNo { get; set; }
         public string FirstName { get; set; }
@@ -25,20 +19,21 @@ namespace BusinessLayer
 
         public string FullName
         {
-        get {
+            get
+            {
                 string ThirdNameWithSpace = ThirdName != "" ? $"{ThirdName} " : "";
-                return $"{FirstName} {SecondName} {ThirdNameWithSpace} {LastName}"; 
+                return $"{FirstName} {SecondName} {ThirdNameWithSpace} {LastName}";
             }
         }
 
         public DateTime DateOfBirth { get; set; }
-        public enGender Gendor { get; set; }
+        public enGender Gender { get; set; }
 
-        public string GendorCaption
+        public string GenderCaption
         {
             get
             {
-                return Gendor == 0 ? "Male" : "Female";
+                return Gender == 0 ? "Male" : "Female";
             }
         }
 
@@ -48,7 +43,7 @@ namespace BusinessLayer
         public int? NationalityCountryID { get; set; }
         public clsCountry? CountryInfo;
         public string? ImageName { get; set; }
-        
+
 
 
         public clsPerson()
@@ -60,7 +55,7 @@ namespace BusinessLayer
             ThirdName = "";
             LastName = "";
             DateOfBirth = default;
-            Gendor = 0;
+            Gender = 0;
             Address = "";
             Phone = "";
             Email = "";
@@ -79,7 +74,7 @@ namespace BusinessLayer
             this.ThirdName = Person.ThirdName;
             this.LastName = Person.LastName;
             this.DateOfBirth = Person.DateOfBirth;
-            this.Gendor = Person.Gendor;
+            this.Gender = Person.Gender;
             this.Address = Person.Address;
             this.Phone = Person.Phone;
             this.Email = Person.Email;
@@ -100,7 +95,7 @@ namespace BusinessLayer
             return Person;
         }
 
-        public static async Task <clsPerson?> Find(int PersonID)
+        public static async Task<clsPerson?> Find(int PersonID)
         {
 
             var Person = await clsPersonData.GetPerson(PersonID);
@@ -126,7 +121,7 @@ namespace BusinessLayer
         }
         private async Task<bool> _AddNewPerson()
         {
-            var NewPerson = AutoMapperConfig.Mapper.Map<PersonForCreateDTO>(this);
+            var NewPerson = AutoMapperConfig.Mapper.Map<PersonDTO>(this);
             PersonID = await clsPersonData.AddNewPerson(NewPerson);
 
             return PersonID is not null;
@@ -134,8 +129,8 @@ namespace BusinessLayer
 
         private async Task<bool> _UpdatePerson()
         {
-            var UpdatePerson = AutoMapperConfig.Mapper.Map<PersonForUpdateDTO>(this);
-            return await clsPersonData.UpdatePerson(PersonID ??-1, UpdatePerson);
+            var UpdatePerson = AutoMapperConfig.Mapper.Map<PersonDTO>(this);
+            return await clsPersonData.UpdatePerson(PersonID ?? -1, UpdatePerson);
         }
 
         public async Task<bool> Save()
@@ -173,11 +168,21 @@ namespace BusinessLayer
             return await clsPersonData.GetAllPeople();
         }
 
-        
 
-        public static async Task<bool> IsPersonExists(string NationalNo)
+
+        public static async Task<bool> IsNationalNoUnique(string NationalNo, int? Id = null)
         {
-            return await clsPersonData.IsPersonExists(NationalNo);
+            return await clsPersonData.IsNationalNoUnique(NationalNo, Id);
+        }
+
+        public static async Task<bool> IsEmailUnique(string Email, int? Id = null)
+        {
+            return await clsPersonData.IsEmailUnique(Email, Id);
+        }
+
+        public static async Task<bool> IsPhoneUnique(string Phone, int? Id = null)
+        {
+            return await clsPersonData.IsPhoneUnique(Phone, Id);
         }
 
         public static async Task<bool> IsPersonExists(int PersonID)

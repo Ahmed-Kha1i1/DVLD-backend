@@ -1,12 +1,8 @@
-﻿using AutoMapper;
-using AutoMapper.Configuration.Conventions;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.License;
-using DataLayerCore.Driver;
 using DataLayerCore.License;
-using Microsoft.AspNetCore.Http;  
-using Microsoft.AspNetCore.Mvc;  
-using System.Collections.Generic;  
-using System.Threading.Tasks;  
+using Microsoft.AspNetCore.Mvc;
 using static DVLDApi.Helpers.ApiResponse;
 
 [ApiController]
@@ -24,12 +20,10 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ValidateId("licenseId")]
     public async Task<IActionResult> GetLicense(int licenseId)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
         var license = await clsLicense.FindByLicenseID(licenseId);
 
         if (license is null)
@@ -44,12 +38,10 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ValidateId("ApplicationId")]
     public async Task<IActionResult> GetLicenseByApplicationId(int ApplicationId)
     {
-        if (ApplicationId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid application id"));
-        }
+
         var license = await clsLicense.FindByApplicationID(ApplicationId);
 
         if (license is null)
@@ -81,7 +73,7 @@ public class LicensesController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error adding license"));
         }
-        
+
     }
 
     [HttpPut("{licenseId}", Name = "UpdateLicense")]
@@ -89,12 +81,10 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ValidateId("licenseId")]
     public async Task<IActionResult> UpdateLicense(int licenseId, LicenseInfoForUpdateDTO licenseDTO)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
 
         if (licenseDTO == null)
         {
@@ -125,10 +115,7 @@ public class LicensesController : ControllerBase
     public async Task<IActionResult> GetAllLicenses()
     {
         var licenses = await clsLicense.GetLicenses();
-        if (licenses.Count == 0)
-        {
-            return NotFound(CreateResponse(StatusFail, "No licenses found!"));
-        }
+
 
         return Ok(CreateResponse(StatusSuccess, new { length = licenses.Count, data = licenses }));
     }
@@ -136,17 +123,11 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ValidateId("PersonID", "LicenseClassID")]
     public async Task<IActionResult> GetActiveLicenseIDByPersonID(int PersonID, int LicenseClassID)
     {
-        if (PersonID < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid person id"));
-        }
 
-        if (LicenseClassID < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license class id"));
-        }
+
 
         var LicenseId = await clsLicense.GetActiveLicenseIDByPersonID(PersonID, LicenseClassID);
         if (LicenseId is not null)
@@ -163,15 +144,13 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ValidateId("LicenseId")]
     public async Task<IActionResult> DeactivateLicense(int LicenseId)
     {
-        if (LicenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
 
         var license = await clsLicense.FindByLicenseID(LicenseId);
-        if(license is null)
+        if (license is null)
         {
             return NotFound(CreateResponse(StatusFail, $"License with ID {LicenseId} not found."));
         }
@@ -190,12 +169,10 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ValidateId("LicenseId")]
     public async Task<IActionResult> IsLicenseExpired(int LicenseId)
     {
-        if (LicenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
 
         var license = await clsLicense.FindByLicenseID(LicenseId);
         if (license is null)
@@ -211,13 +188,11 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    
+    [ValidateId("licenseId")]
+
     public async Task<IActionResult> RenewLicense(int licenseId, RenewLicenseDTO renewLicenseDTO)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
         if (renewLicenseDTO == null)
         {
             return BadRequest(CreateResponse(StatusFail, "Renew license object can't be null"));
@@ -245,13 +220,11 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    
+    [ValidateId("licenseId")]
+
     public async Task<IActionResult> ReplaceFor(int licenseId, ReplaceLicenseDTO replaceLicenseDTO)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
         if (replaceLicenseDTO == null)
         {
             return BadRequest(CreateResponse(StatusFail, "Replace license object can't be null"));
@@ -278,13 +251,10 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    
+    [ValidateId("licenseId")]
     public async Task<IActionResult> DetainLicense(int licenseId, DetainLicenseDTO detainLicenseDTO)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
+
         if (detainLicenseDTO == null)
         {
             return BadRequest(CreateResponse(StatusFail, "Detain license object can't be null"));
@@ -312,16 +282,11 @@ public class LicensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ReleaseDetainedLicense(int licenseId,int ReleasedByUserID)
+    [ValidateId("licenseId", "ReleasedByUserID")]
+    public async Task<IActionResult> ReleaseDetainedLicense(int licenseId, int ReleasedByUserID)
     {
-        if (licenseId < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid license id"));
-        }
-        if (ReleasedByUserID < 1)
-        {
-            return BadRequest(CreateResponse(StatusFail, "Invalid user id"));
-        }
+
+
 
         var license = await clsLicense.FindByLicenseID(licenseId);
 

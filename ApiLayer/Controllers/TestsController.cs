@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiLayer.Filters;
+using AutoMapper;
 using BusinessLayer.Tests.Test;
 using DataLayerCore.Test;
 using DataLayerCore.TestType;
@@ -21,12 +22,10 @@ namespace DVLDApi.Controllers
         [HttpGet("{testId}", Name = "GetTestById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("testId")]
         public async Task<IActionResult> GetTest(int testId)
         {
-            if (testId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test id"));
-            }
+
 
             var test = await clsTest.Find(testId);
             if (test == null)
@@ -65,12 +64,10 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("testId")]
         public async Task<IActionResult> UpdateTest(int testId, TestForUpdateDTO testDTO)
         {
-            if (testId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid test id"));
-            }
+
 
             if (testDTO == null)
             {
@@ -100,21 +97,19 @@ namespace DVLDApi.Controllers
         public async Task<IActionResult> GetAllTests()
         {
             var tests = await clsTest.GetTests();
-            if (tests.Count == 0)
-            {
-                return NotFound(CreateResponse(StatusFail, "No tests found!"));
-            }
+
             return Ok(CreateResponse(StatusSuccess, tests));
         }
 
-       
-        
-        [HttpGet("{TestTypeID}/Last", Name = "GetLastTest")]
+
+
+        [HttpGet("{testTypeID}/Last", Name = "GetLastTest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetLastTest(enTestType TestTypeID,LastTestDTO lastTestDTO)
+        [ValidateId("testTypeID")]
+        public async Task<IActionResult> GetLastTest(enTestType testTypeID, LastTestDTO lastTestDTO)
         {
-            var test = await clsTest.FindLastTestPerPersonAndLicenseClass(TestTypeID,lastTestDTO);
+            var test = await clsTest.FindLastTestPerPersonAndLicenseClass(testTypeID, lastTestDTO);
             if (test == null)
             {
                 return NotFound(CreateResponse(StatusFail, "No last test found for this person and test type!"));
@@ -123,15 +118,13 @@ namespace DVLDApi.Controllers
             return Ok(CreateResponse(StatusSuccess, test));
         }
 
-        [HttpGet("LocalApplciation/{localDrivingLicenseApplicationId}/IsPassedAllTests", Name = "IsPassedAllTests")]
+        [HttpGet("LocalApplciation/{localApplicationId}/IsPassedAllTests", Name = "IsPassedAllTests")]
+        [ValidateId("localApplicationId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> IsPassedAllTests(int localDrivingLicenseApplicationId)
+        public async Task<IActionResult> IsPassedAllTests(int localApplicationId)
         {
-            if (localDrivingLicenseApplicationId < 1)
-            {
-                return BadRequest(CreateResponse(StatusFail, "Invalid applicayion id"));
-            }
-            var allPassed = await clsTest.IsPassedAllTests(localDrivingLicenseApplicationId);
+
+            var allPassed = await clsTest.IsPassedAllTests(localApplicationId);
             return Ok(CreateResponse(StatusSuccess, allPassed));
         }
     }

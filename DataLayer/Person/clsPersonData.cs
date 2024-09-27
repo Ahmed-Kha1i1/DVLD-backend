@@ -1,10 +1,5 @@
-﻿using DataLayerCore;
-using DataLayerCore.Datahandler;
+﻿using DataLayerCore.Datahandler;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Data;
-using System.Net;
-using System.Numerics;
 
 namespace DataLayerCore.Person
 {
@@ -56,7 +51,7 @@ namespace DataLayerCore.Person
             return personDTO;
         }
 
-        public static async Task<int?> AddNewPerson(PersonForCreateDTO Person)
+        public static async Task<int?> AddNewPerson(PersonDTO Person)
         {
             int? personID = null;
             await DataSendhandler.handle("SP_AddNewPerson", async (Connection, Command) =>
@@ -76,7 +71,7 @@ namespace DataLayerCore.Person
                 }
                 Command.Parameters.AddWithValue("@LastName", Person.LastName);
                 Command.Parameters.AddWithValue("@DateOfBirth", Person.DateOfBirth);
-                Command.Parameters.AddWithValue("@Gendor", Person.Gendor);
+                Command.Parameters.AddWithValue("@Gender", Person.Gender);
                 Command.Parameters.AddWithValue("@Address", Person.Address);
                 Command.Parameters.AddWithValue("@Phone", Person.Phone);
                 if (string.IsNullOrWhiteSpace(Person.Email))
@@ -108,7 +103,7 @@ namespace DataLayerCore.Person
 
         }
 
-        public static async Task<bool> UpdatePerson(int PersonId, PersonForUpdateDTO Person)
+        public static async Task<bool> UpdatePerson(int PersonId, PersonDTO Person)
         {
 
             int RowAffected = 0;
@@ -117,7 +112,6 @@ namespace DataLayerCore.Person
                 Connection.Open();
 
                 Command.Parameters.AddWithValue("@PersonID", PersonId);
-                Command.Parameters.AddWithValue("@NationalNo", Person.NationalNo);
                 Command.Parameters.AddWithValue("@NationalNo", Person.NationalNo);
                 Command.Parameters.AddWithValue("@FirstName", Person.FirstName);
                 Command.Parameters.AddWithValue("@SecondName", Person.SecondName);
@@ -131,7 +125,7 @@ namespace DataLayerCore.Person
                 }
                 Command.Parameters.AddWithValue("@LastName", Person.LastName);
                 Command.Parameters.AddWithValue("@DateOfBirth", Person.DateOfBirth);
-                Command.Parameters.AddWithValue("@Gendor", Person.Gendor);
+                Command.Parameters.AddWithValue("@Gender", Person.Gender);
                 Command.Parameters.AddWithValue("@Address", Person.Address);
                 Command.Parameters.AddWithValue("@Phone", Person.Phone);
                 if (string.IsNullOrWhiteSpace(Person.Email))
@@ -196,19 +190,56 @@ namespace DataLayerCore.Person
 
         }
 
-        public static async Task<bool> IsPersonExists(string NationalNo)
+        public static async Task<bool> IsNationalNoUnique(string NationalNo, int? Id)
         {
-            bool IsFound = false;
-            await DataSendhandler.handle("SP_IsPersonExistsByNationalNo", async (Connection, Command) =>
+            bool IsUnique = false;
+            await DataSendhandler.handle("SP_IsNationalNoUnique", async (Connection, Command) =>
             {
                 Connection.Open();
                 Command.Parameters.AddWithValue("@NationalNo", NationalNo);
+                if (Id is not null)
+                    Command.Parameters.AddWithValue("@Id", Id);
                 object? Result = await Command.ExecuteScalarAsync();
 
-                IsFound = Result is not null;
+                IsUnique = Result is not null && (int)Result == 1;
             });
 
-            return IsFound;
+            return IsUnique;
+        }
+
+        public static async Task<bool> IsEmailUnique(string Email, int? Id)
+        {
+            bool IsUnique = false;
+            await DataSendhandler.handle("SP_IsEmailUnique", async (Connection, Command) =>
+            {
+                Connection.Open();
+                Command.Parameters.AddWithValue("@Email", Email);
+                if (Id is not null)
+                    Command.Parameters.AddWithValue("@Id", Id);
+                object? Result = await Command.ExecuteScalarAsync();
+
+                IsUnique = Result is not null && (int)Result == 1;
+            });
+
+            return IsUnique;
+        }
+
+
+        public static async Task<bool> IsPhoneUnique(string Phone, int? Id)
+        {
+            bool IsUnique = false;
+            await DataSendhandler.handle("SP_IsPhoneUnique", async (Connection, Command) =>
+            {
+                Connection.Open();
+                Command.Parameters.AddWithValue("@Phone", Phone);
+                if (Id is not null)
+                    Command.Parameters.AddWithValue("@Id", Id);
+                object? Result = await Command.ExecuteScalarAsync();
+
+                IsUnique = Result is not null && (int)Result == 1;
+            });
+
+            return IsUnique;
         }
 
         public static async Task<bool> IsPersonExists(int PersonID)
@@ -220,7 +251,7 @@ namespace DataLayerCore.Person
                 Command.Parameters.AddWithValue("@PersonID", PersonID);
                 object? Result = await Command.ExecuteScalarAsync();
 
-                IsFound = Result is not null;
+                IsFound = Result is not null && (int)Result == 1;
             });
 
             return IsFound;
