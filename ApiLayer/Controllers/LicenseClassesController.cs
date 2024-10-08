@@ -65,7 +65,7 @@ namespace DVLDApi.Controllers
             var licenseClasss = await clsLicenseClass.GetAllLicenseClasses();
 
 
-            return Ok(CreateResponse(StatusSuccess, new { length = licenseClasss.Count, data = licenseClasss }));
+            return Ok(CreateResponse(StatusSuccess, licenseClasss));
         }
     }
 }

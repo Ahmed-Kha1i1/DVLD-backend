@@ -49,7 +49,7 @@ namespace DVLDApi.Controllers
 
 
 
-            var result = CreateResponse(StatusSuccess, new { length = TestTypesList.Count, data = TestTypesList });
+            var result = CreateResponse(StatusSuccess, TestTypesList);
             return Ok(result);
         }
     }

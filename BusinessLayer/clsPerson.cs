@@ -83,7 +83,7 @@ namespace BusinessLayer
             Mode = enMode.Update;
         }
 
-        protected static async Task<clsPerson> CreateAsync(PersonDTO PersonDTO)
+        public static async Task<clsPerson> CreateAsync(PersonDTO PersonDTO)
         {
             Task<clsCountry?> Country = clsCountry.Find(PersonDTO.NationalityCountryID);
 

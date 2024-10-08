@@ -1,7 +1,6 @@
-﻿using DataLayerCore;
-using DataLayerCore.Datahandler;
+﻿using DataLayerCore.Datahandler;
+using DataLayerCore.Person;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace DataLayerCore.Driver
 {
@@ -46,6 +45,29 @@ namespace DataLayerCore.Driver
             });
 
             return driverDTO;
+        }
+
+        public static async Task<PersonDTO?> GetPerson(int DriverId)
+        {
+            PersonDTO? personDTO = null;
+            await DataSendhandler.handle("SP_FindPersondByDriverId", async (Connection, Command) =>
+            {
+
+                Command.Parameters.AddWithValue("@DriverId", DriverId);
+                Connection.Open();
+                using (SqlDataReader Reader = await Command.ExecuteReaderAsync())
+                {
+
+                    if (Reader.Read())
+                    {
+                        personDTO = Reader.MapTo<PersonDTO>();
+                    }
+                }
+
+            });
+
+            return personDTO;
+
         }
 
         public static async Task<int?> AddNewDriver(DriverForCreateDTO NewDriver)

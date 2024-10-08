@@ -142,7 +142,7 @@ namespace DVLDApi.Controllers
             var applications = await clsLocalDrivingLicenseApplication.GetLocalDrivingLicenseApplications();
 
 
-            return Ok(CreateResponse(StatusSuccess, new { length = applications.Count, data = applications }));
+            return Ok(CreateResponse(StatusSuccess, applications));
         }
         [HttpGet("{id}/tests/{testTypeId}/pass", Name = "DoesPassTestType")]
         [ProducesResponseType(StatusCodes.Status200OK)]

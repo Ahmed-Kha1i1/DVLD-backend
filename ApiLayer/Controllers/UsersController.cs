@@ -1,6 +1,8 @@
-﻿using ApiLayer.Filters;
+﻿using ApiLayer.ActionConstraints;
+using ApiLayer.Filters;
 using AutoMapper;
 using BusinessLayer;
+using DataLayerCore.Person;
 using DataLayerCore.User;
 using Microsoft.AspNetCore.Mvc;
 using static DVLDApi.Helpers.ApiResponse;
@@ -17,22 +19,59 @@ namespace DVLDApi.Controllers
         {
             _mapper = mapper;
         }
-
-        [HttpGet("{userId}", Name = "GetUserById")]
+        [HttpGet("person/{userId:int}", Name = "GetPersonByUserId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ValidateId("userId")]
+        public async Task<IActionResult> GetPerson(int userId)
+        {
+            var person = await clsUser.FindPerson(userId);
+            if (person == null)
+            {
+                return NotFound(CreateResponse(StatusFail, "Person not found"));
+            }
+
+            var personDto = _mapper.Map<PersonFullDTO>(person);
+
+            return Ok(CreateResponse(StatusSuccess, personDto));
+        }
+
+
+        [HttpGet("{userId}", Name = "GetUserFull")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [RequestHeaderMatchesMediaType("accept", "application/json", "application/vnd.user.full+json")]
+        [Produces("application/json", "application/vnd.user.full+json")]
+        [ValidateId("userId")]
         public async Task<IActionResult> GetUser(int userId)
         {
-
-
             var user = await clsUser.FindUser(userId);
             if (user == null)
             {
                 return NotFound(CreateResponse(StatusFail, "User not found"));
             }
 
-            return Ok(CreateResponse(StatusSuccess, _mapper.Map<UserFullDTO>(user)));
+            var userDTO = _mapper.Map<UserFullDTO>(user);
+            return Ok(CreateResponse(StatusSuccess, userDTO));
+        }
+
+
+        [HttpGet("{userId}", Name = "GetUserPref")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [RequestHeaderMatchesMediaType("accept", "application/vnd.user.pref+json")]
+        [Produces("application/vnd.user.pref+json")]
+        [ValidateId("userId")]
+        public async Task<IActionResult> GetUserPref(int userId)
+        {
+            var user = await clsUser.FindUser(userId);
+            if (user == null)
+            {
+                return NotFound(CreateResponse(StatusFail, "User not found"));
+            }
+
+            var userDTO = _mapper.Map<UserPrefDTO>(user);
+            return Ok(CreateResponse(StatusSuccess, userDTO));
         }
 
         [HttpPost(Name = "AddUser")]
@@ -48,9 +87,9 @@ namespace DVLDApi.Controllers
 
             var user = _mapper.Map<clsUser>(userDTO);
 
-            if (await user.Save())
+            if (await user.Save(userDTO.Password))
             {
-                return CreatedAtRoute("GetUserById", new { userId = user.UserID }, CreateResponse(StatusSuccess, user));
+                return CreatedAtRoute("GetUserById", new { userId = user.UserID }, CreateResponse(StatusSuccess, new { user.UserID }));
             }
             else
             {
@@ -66,8 +105,6 @@ namespace DVLDApi.Controllers
         [ValidateId("userId")]
         public async Task<IActionResult> UpdateUser(int userId, UserForUpdateDTO userDTO)
         {
-
-
             if (userDTO == null)
             {
                 return BadRequest(CreateResponse(StatusFail, "User object can't be null"));
@@ -83,13 +120,38 @@ namespace DVLDApi.Controllers
 
             if (await user.Save())
             {
-                return Ok(CreateResponse(StatusSuccess, user));
+                return Ok(CreateResponse(StatusSuccess, _mapper.Map<UserFullDTO>(user)));
             }
             else
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating user"));
             }
         }
+
+        [HttpPut("UpdatePassword/{userId}", Name = "UpdatePassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ValidateId("userId")]
+        public async Task<IActionResult> UpdatePassword(int userId, [FromBody] UpdatePasswordDTO updatePasswordDTO)
+        {
+            if (updatePasswordDTO == null)
+            {
+                return BadRequest(CreateResponse(StatusFail, "UpdatePassword object can't be null"));
+            }
+
+
+            if (await clsUser.UpdatePassword(userId, updatePasswordDTO))
+            {
+                return Ok(CreateResponse(StatusSuccess));
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating password"));
+            }
+        }
+
 
         [HttpDelete("{userId}", Name = "DeleteUser")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -108,7 +170,7 @@ namespace DVLDApi.Controllers
 
             if (await clsUser.DeleteUser(userId))
             {
-                var result = CreateResponse(StatusSuccess, $"User with id {userId} has been deleted.");
+                var result = CreateResponse(StatusSuccess, $"User with id {userId} has been deleted.", new { userId });
                 return Ok(result);
             }
             else
@@ -124,7 +186,7 @@ namespace DVLDApi.Controllers
         {
             var users = await clsUser.GetAllUsers();
 
-            return Ok(CreateResponse(StatusSuccess, new { length = users.Count, data = users }));
+            return Ok(CreateResponse(StatusSuccess, users));
         }
 
         [HttpGet("Exists/{userId}", Name = "IsUserExistByUserId")]
@@ -175,27 +237,18 @@ namespace DVLDApi.Controllers
             return Ok(CreateResponse(StatusSuccess, isActive));
         }
 
-        [HttpPut("{userId}/Password", Name = "UpdatePassword")]
+        [HttpGet("Unique/Username/{Username}", Name = "IsUsernameUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ValidateId("userId")]
-        public async Task<IActionResult> UpdatePassword(int userId, [FromBody] string newPassword)
+        public async Task<IActionResult> IsUsernameUnique(string Username, [FromQuery] int? Id)
         {
-            var userExists = await clsUser.IsUserExistByUserID(userId);
-            if (!userExists)
+            if (string.IsNullOrEmpty(Username))
             {
-                return NotFound(CreateResponse(StatusFail, "User not found"));
+                return BadRequest(CreateResponse(StatusFail, "Username is not valid"));
             }
 
-            if (await clsUser.UpdatePassword(userId, newPassword))
-            {
-                return Ok(CreateResponse(StatusSuccess, "Password updated successfully"));
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating password"));
-            }
+            var unique = await clsUser.IsUsernameUnique(Username, Id);
+            return Ok(CreateResponse(StatusSuccess, unique));
         }
     }
 }

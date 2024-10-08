@@ -45,7 +45,7 @@ namespace DVLDApi.Controllers
 
 
 
-            return Ok(CreateResponse(StatusSuccess, new { Length = ApplicationTypesList.Count, data = ApplicationTypesList }));
+            return Ok(CreateResponse(StatusSuccess, ApplicationTypesList));
         }
     }
 }

@@ -101,7 +101,7 @@ namespace DVLDApi.Controllers
             var testAppointments = await clsTestAppointment.GetAllTestAppointments(testTypeId, localApplicationId);
 
 
-            return Ok(CreateResponse(StatusSuccess, new { length = testAppointments.Count, data = testAppointments }));
+            return Ok(CreateResponse(StatusSuccess, new { testAppointments }));
         }
 
         [HttpDelete("{testAppointmentId}", Name = "DeleteTestAppointment")]

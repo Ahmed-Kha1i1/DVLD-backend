@@ -1,9 +1,5 @@
 ﻿using BusinessLayerCore;
 using DataLayerCore.User;
-using System;
-using System.Data;
-using System.IO;
-using static DataLayerCore.User.clsUserData;
 
 namespace BusinessLayer
 {
@@ -58,7 +54,7 @@ namespace BusinessLayer
             {
                 return await CreateAsync(User);
             }
-                
+
 
             return null;
         }
@@ -72,6 +68,18 @@ namespace BusinessLayer
                 return await CreateAsync(User);
             }
 
+
+            return null;
+        }
+
+        public static async Task<clsPerson?> FindPerson(int UserID)
+        {
+
+            var Person = await clsUserData.GetPerson(UserID);
+            if (Person is not null)
+            {
+                return await clsPerson.CreateAsync(Person);
+            }
 
             return null;
         }
@@ -93,9 +101,13 @@ namespace BusinessLayer
         }
 
 
-        private async Task<bool> _AddNewUser()
+        private async Task<bool> _AddNewUser(string NewPassword)
         {
-            var NewUser = AutoMapperConfig.Mapper.Map<UserForCreateDTO>(this);
+            if (string.IsNullOrEmpty(NewPassword))
+                return false;
+
+            var NewUser = AutoMapperConfig.Mapper.Map<UserFordatabaseDTO>(this);
+            NewUser.Password = NewPassword;
             UserID = await clsUserData.AddNewUser(NewUser);
 
             return UserID is not null;
@@ -103,17 +115,17 @@ namespace BusinessLayer
 
         private async Task<bool> _UpdateUser()
         {
-            var updateUser = AutoMapperConfig.Mapper.Map<UserForUpdateDTO>(this);
+            var updateUser = AutoMapperConfig.Mapper.Map<UserDTO>(this);
             return await clsUserData.UpdateUser(UserID ?? -1, updateUser);
         }
 
-        public async Task<bool> Save()
+        public async Task<bool> Save(string? NewPassword = null)
         {
             switch (Mode)
             {
                 case enMode.AddNew:
 
-                    if (await _AddNewUser())
+                    if (await _AddNewUser(NewPassword))
                     {
                         Mode = enMode.Update;
                         return true;
@@ -134,7 +146,7 @@ namespace BusinessLayer
 
         public static async Task<bool> DeleteUser(int UserID)
         {
-            return  await clsUserData.DeleteUser(UserID);
+            return await clsUserData.DeleteUser(UserID);
         }
 
         public static async Task<List<UserPrefDTO>> GetAllUsers()
@@ -161,9 +173,15 @@ namespace BusinessLayer
             return await clsUserData.IsUserActive(UserID);
         }
 
-        public static async Task<bool> UpdatePassword(int UserID, string NewPassword)
+        public static async Task<bool> UpdatePassword(int UserId, UpdatePasswordDTO UpdatePasswordDTO)
         {
-            return await clsUserData.UpdatePassword(UserID, NewPassword);
+            return await clsUserData.UpdatePassword(UserId, UpdatePasswordDTO);
         }
+
+        public static async Task<bool> IsUsernameUnique(string Username, int? Id = null)
+        {
+            return await clsUserData.IsUsernameUnique(Username, Id);
+        }
+
     }
 }

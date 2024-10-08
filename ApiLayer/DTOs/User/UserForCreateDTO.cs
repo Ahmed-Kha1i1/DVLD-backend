@@ -2,6 +2,6 @@
 {
     public class UserForCreateDTO : UserForModificationDTO
     {
-        
+        public string Password { get; set; }
     }
 }

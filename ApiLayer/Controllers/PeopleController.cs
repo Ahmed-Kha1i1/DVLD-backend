@@ -31,6 +31,22 @@ namespace DVLDApi.Controllers
             return Ok(CreateResponse(StatusSuccess, personDto));
         }
 
+        [HttpGet("NationalNumber/{nationalNumber}", Name = "GetPersonByNationalNo")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPersonByNationalNo([FromRoute(Name = "nationalNumber")] string NationalNo)
+        {
+            var person = await clsPerson.Find(NationalNo);
+            if (person == null)
+            {
+                return NotFound(CreateResponse(StatusFail, "Person not found"));
+            }
+
+            var personDto = _mapper.Map<PersonFullDTO>(person);
+
+            return Ok(CreateResponse(StatusSuccess, personDto));
+        }
+
         [HttpPost(Name = "AddPerson")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status207MultiStatus)]
@@ -38,7 +54,6 @@ namespace DVLDApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddPerson([FromForm] PersonForCreateDTO? personDTO)
         {
-
             if (personDTO == null)
             {
                 return BadRequest(CreateResponse(StatusFail, "Person object can't be null"));
@@ -118,7 +133,7 @@ namespace DVLDApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, CreateResponse(StatusError, "Error updating person"));
             }
 
-            return Ok(CreateResponse(StatusSuccess, "Person was updated successfully", _mapper.Map<PersonFullDTO>(person)));
+            return Ok(CreateResponse(StatusSuccess, _mapper.Map<PersonFullDTO>(person)));
         }
 
         [HttpPut("UpdateContact/{personId:int}", Name = "UpdateContactPerson")]
@@ -143,8 +158,7 @@ namespace DVLDApi.Controllers
             _mapper.Map(personDTO, person);
             if (await person.Save())
             {
-                var personDto = _mapper.Map<PersonFullDTO>(person);
-                return Ok(CreateResponse(StatusSuccess, "Person was updated successfully", personDto));
+                return Ok(CreateResponse(StatusSuccess, "Person was updated successfully", _mapper.Map<PersonFullDTO>(person)));
             }
             else
             {
@@ -170,7 +184,7 @@ namespace DVLDApi.Controllers
 
             if (await clsPerson.DeletePerson(personId))
             {
-                var result = CreateResponse(StatusSuccess, $"Person with id {personId} has been deleted.");
+                var result = CreateResponse(StatusSuccess, $"Person with id {personId} has been deleted.", new { personId });
                 return Ok(result);
             }
             else
@@ -186,41 +200,41 @@ namespace DVLDApi.Controllers
         {
             var persons = await clsPerson.GetPeopleDetails();
 
-            return Ok(CreateResponse(StatusSuccess, new { length = persons.Count, data = persons }));
+            return Ok(CreateResponse(StatusSuccess, persons));
         }
 
         [HttpGet("Unique/NationalNo/{nationalNo}", Name = "IsNationalNoUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> IsNationalNoUnique(string nationalNo)
+        public async Task<IActionResult> IsNationalNoUnique(string nationalNo, [FromQuery] int? Id)
         {
             if (string.IsNullOrEmpty(nationalNo))
             {
                 return BadRequest(CreateResponse(StatusFail, "National number is not valid"));
             }
 
-            var unique = await clsPerson.IsNationalNoUnique(nationalNo);
+            var unique = await clsPerson.IsNationalNoUnique(nationalNo, Id);
             return Ok(CreateResponse(StatusSuccess, unique));
         }
 
         [HttpGet("Unique/Email/{email}", Name = "IsEmaiUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> IsEmaiUnique(string email)
+        public async Task<IActionResult> IsEmaiUnique(string email, [FromQuery] int? Id)
         {
             if (string.IsNullOrEmpty(email))
             {
                 return BadRequest(CreateResponse(StatusFail, "Email is not valid"));
             }
 
-            var unique = await clsPerson.IsEmailUnique(email);
+            var unique = await clsPerson.IsEmailUnique(email, Id);
             return Ok(CreateResponse(StatusSuccess, unique));
         }
 
         [HttpGet("Unique/Phone/{phone}", Name = "IsPhoneUnique")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> IsPhoneUnique(string phone)
+        public async Task<IActionResult> IsPhoneUnique(string phone, [FromQuery] int? Id)
         {
 
             if (string.IsNullOrEmpty(phone))
@@ -228,7 +242,7 @@ namespace DVLDApi.Controllers
                 return BadRequest(CreateResponse(StatusFail, "Phone is not valid"));
             }
 
-            var unique = await clsPerson.IsPhoneUnique(phone);
+            var unique = await clsPerson.IsPhoneUnique(phone, Id);
             return Ok(CreateResponse(StatusSuccess, unique));
         }
 
@@ -239,9 +253,6 @@ namespace DVLDApi.Controllers
         [ValidateId("personId")]
         public async Task<IActionResult> IsPersonExistsById(int personId)
         {
-
-
-
             var exists = await clsPerson.IsPersonExists(personId);
             return Ok(CreateResponse(StatusSuccess, exists));
         }

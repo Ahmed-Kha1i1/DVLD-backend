@@ -1,7 +1,6 @@
-﻿using DataLayerCore;
-using DataLayerCore.Datahandler;
+﻿using DataLayerCore.Datahandler;
+using DataLayerCore.Person;
 using Microsoft.Data.SqlClient;
-using System.Data;
 namespace DataLayerCore.User
 {
     public class clsUserData
@@ -24,6 +23,29 @@ namespace DataLayerCore.User
             });
 
             return userDTO;
+        }
+
+        public static async Task<PersonDTO?> GetPerson(int userId)
+        {
+            PersonDTO? personDTO = null;
+            await DataSendhandler.handle("SP_FindPersondByUserId", async (Connection, Command) =>
+            {
+
+                Command.Parameters.AddWithValue("@UserID", userId);
+                Connection.Open();
+                using (SqlDataReader Reader = await Command.ExecuteReaderAsync())
+                {
+
+                    if (Reader.Read())
+                    {
+                        personDTO = Reader.MapTo<PersonDTO>();
+                    }
+                }
+
+            });
+
+            return personDTO;
+
         }
 
         public static async Task<UserDTO?> GetUserByPersonID(int PersonID)
@@ -67,7 +89,7 @@ namespace DataLayerCore.User
             return userDTO;
         }
 
-        public static async Task<int?> AddNewUser(UserForCreateDTO User)
+        public static async Task<int?> AddNewUser(UserFordatabaseDTO User)
         {
             int? UserID = null;
             await DataSendhandler.handle("SP_AddNewUser", async (Connection, Command) =>
@@ -91,7 +113,7 @@ namespace DataLayerCore.User
 
         }
 
-        public static async Task<bool> UpdateUser(int UserID, UserForUpdateDTO User)
+        public static async Task<bool> UpdateUser(int UserID, UserDTO User)
         {
 
             int RowAffected = 0;
@@ -101,7 +123,6 @@ namespace DataLayerCore.User
                 Command.Parameters.AddWithValue("@UserID", UserID);
                 Command.Parameters.AddWithValue("@PersonID", User.PersonID);
                 Command.Parameters.AddWithValue("@UserName", User.UserName);
-                Command.Parameters.AddWithValue("@Password", User.Password);
                 Command.Parameters.AddWithValue("@IsActive", User.IsActive);
 
                 RowAffected = await Command.ExecuteNonQueryAsync();
@@ -171,7 +192,7 @@ namespace DataLayerCore.User
                 Command.Parameters.AddWithValue("@PersonID", PersonID);
                 object? Result = await Command.ExecuteScalarAsync();
 
-                IsFound = Result is not null;
+                IsFound = Result is not null && (int)Result == 1;
             });
 
             return IsFound;
@@ -208,14 +229,31 @@ namespace DataLayerCore.User
             return IsFound;
         }
 
-        public static async Task<bool> UpdatePassword(int UserID, string NewPassword)
+        public static async Task<bool> IsUsernameUnique(string Username, int? Id)
+        {
+            bool IsUnique = false;
+            await DataSendhandler.handle("SP_IsUsernameUnique", async (Connection, Command) =>
+            {
+                Connection.Open();
+                Command.Parameters.AddWithValue("@Username", Username);
+                if (Id is not null)
+                    Command.Parameters.AddWithValue("@Id", Id);
+                object? Result = await Command.ExecuteScalarAsync();
+
+                IsUnique = Result is not null && (int)Result == 1;
+            });
+
+            return IsUnique;
+        }
+
+        public static async Task<bool> UpdatePassword(int UserId, UpdatePasswordDTO UpdatePasswordDTO)
         {
             int RowAffected = 0;
             await DataSendhandler.handle("SP_UpdatePassword", async (Connection, Command) =>
             {
                 Connection.Open();
-                Command.Parameters.AddWithValue("@UserID", UserID);
-                Command.Parameters.AddWithValue("@NewPassword", NewPassword);
+                Command.Parameters.AddWithValue("@UserID", UserId);
+                Command.Parameters.AddWithValue("@NewPassword", UpdatePasswordDTO.Password);
 
                 RowAffected = await Command.ExecuteNonQueryAsync();
             });

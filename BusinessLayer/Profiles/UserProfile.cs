@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
 using BusinessLayer;
 using DataLayerCore.User;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLayerCore.Profiles
 {
@@ -13,14 +8,14 @@ namespace BusinessLayerCore.Profiles
     {
         public userProfile()
         {
-            CreateMap<UserForCreateDTO, clsUser>().ReverseMap();
-            CreateMap<UserForUpdateDTO, clsUser>().ReverseMap();
-            CreateMap<UserDTO, clsUser>();
+
+            CreateMap<UserDTO, clsUser>().ReverseMap();
+            CreateMap<UserFordatabaseDTO, clsUser>().ReverseMap();
             CreateMap<clsUser, UserPrefDTO>();
             CreateMap<clsUser, UserFullDTO>().ForMember(dest => dest.Person,
-                       opt => opt.MapFrom(src => src.PersonInfo)) ;
+                       opt => opt.MapFrom(src => src.PersonInfo));
             CreateMap<UserPrefDTO, UserFullDTO>();
-            
+
         }
     }
 }

@@ -2,6 +2,7 @@
 using AutoMapper;
 using BusinessLayer;
 using DataLayerCore.Driver;
+using DataLayerCore.Person;
 using Microsoft.AspNetCore.Mvc;
 using static DVLDApi.Helpers.ApiResponse;
 
@@ -18,7 +19,7 @@ namespace DVLDApi.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{DriverID}", Name = "GetDriverById")]
+        [HttpGet("person/{DriverID}", Name = "GetDriverById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -37,11 +38,11 @@ namespace DVLDApi.Controllers
             return Ok(CreateResponse(StatusSuccess, _mapper.Map<DriverFullDTO>(driver)));
         }
 
-        [HttpGet("ByPersonId/{PersonId}", Name = "GetDriverByPersonId")]
+        [HttpGet("ByPersonId/{_personId}", Name = "GetDriverByPersonId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ValidateId("PersonId")]
+        [ValidateId("_personId")]
 
         public async Task<IActionResult> GetDriverByPersonId(int PersonId)
         {
@@ -55,6 +56,23 @@ namespace DVLDApi.Controllers
             }
 
             return Ok(CreateResponse(StatusSuccess, _mapper.Map<DriverDTO>(driver)));
+        }
+
+        [HttpGet("{driverId:int}", Name = "GetPersonByDriverId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ValidateId("driverId")]
+        public async Task<IActionResult> GetPerson(int driverId)
+        {
+            var person = await clsDriver.FindPerson(driverId);
+            if (person == null)
+            {
+                return NotFound(CreateResponse(StatusFail, "Person not found"));
+            }
+
+            var personDto = _mapper.Map<PersonFullDTO>(person);
+
+            return Ok(CreateResponse(StatusSuccess, personDto));
         }
 
         [HttpPost(Name = "AddDriver")]
@@ -127,7 +145,7 @@ namespace DVLDApi.Controllers
 
 
 
-            var result = CreateResponse(StatusSuccess, new { length = driversList.Count, data = driversList });
+            var result = CreateResponse(StatusSuccess, driversList);
 
             return Ok(result);
         }
@@ -143,7 +161,7 @@ namespace DVLDApi.Controllers
             var licenses = await clsDriver.GetLicenses(DriverID);
 
 
-            var result = CreateResponse(StatusSuccess, new { length = licenses.Count, data = licenses });
+            var result = CreateResponse(StatusSuccess, licenses);
             return Ok(result);
         }
 
@@ -159,7 +177,7 @@ namespace DVLDApi.Controllers
             var internationalLicenses = await clsDriver.GetInternationalLicenses(DriverID);
 
 
-            var result = CreateResponse(StatusSuccess, new { length = internationalLicenses.Count, data = internationalLicenses });
+            var result = CreateResponse(StatusSuccess, internationalLicenses);
             return Ok(result);
         }
     }

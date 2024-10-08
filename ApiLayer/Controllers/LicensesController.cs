@@ -117,7 +117,7 @@ public class LicensesController : ControllerBase
         var licenses = await clsLicense.GetLicenses();
 
 
-        return Ok(CreateResponse(StatusSuccess, new { length = licenses.Count, data = licenses }));
+        return Ok(CreateResponse(StatusSuccess, licenses));
     }
     [HttpGet("Peopel/{PersonID}/LicenseClasses/{LicenseClassID}", Name = "GetActiveLicenseIDByPersonID")]
     [ProducesResponseType(StatusCodes.Status200OK)]

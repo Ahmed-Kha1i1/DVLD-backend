@@ -8,7 +8,7 @@ namespace ApiLayer.Validators
     {
         public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
         {
-            return new BadRequestObjectResult(CreateResponse(StatusError, "One or more Valodation error accur", validationProblemDetails?.Errors));
+            return new BadRequestObjectResult(CreateResponse(StatusError, "One or more Valodation error occurred.", validationProblemDetails?.Errors));
         }
     }
 }

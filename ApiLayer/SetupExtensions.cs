@@ -44,6 +44,7 @@ namespace DVLDApi
             Services.AddSingleton<FileExtensionContentTypeProvider>();
             Services.AddSingleton<ImageService>();
             Services.AddSingleton<PersonService>();
+            Services.AddSingleton<UserService>();
 
             // Register Exceptions Handlers
             Services.AddExceptionHandler<GlobalExceptionHandler>();

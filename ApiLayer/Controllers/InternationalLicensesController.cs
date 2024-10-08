@@ -108,7 +108,7 @@ namespace DVLDApi.Controllers
 
 
 
-            var result = CreateResponse(StatusSuccess, new { length = licensesList.Count, data = licensesList });
+            var result = CreateResponse(StatusSuccess, licensesList);
             return Ok(result);
         }
 

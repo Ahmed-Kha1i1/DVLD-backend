@@ -66,7 +66,7 @@ namespace DVLDApi.Controllers
         {
             var CountriesList = await clsCountry.GetAllCountries();
 
-            return Ok(CreateResponse(StatusSuccess, new { Length = CountriesList.Count, data = CountriesList }));
+            return Ok(CreateResponse(StatusSuccess, CountriesList));
         }
     }
 }

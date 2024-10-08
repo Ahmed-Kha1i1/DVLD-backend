@@ -126,7 +126,7 @@ namespace DVLDApi.Controllers
             var ApplicationsList = await clsApplication.GetApplications();
 
 
-            var result = CreateResponse(StatusSuccess, new { length = ApplicationsList.Count, data = ApplicationsList });
+            var result = CreateResponse(StatusSuccess, ApplicationsList);
             return Ok(result);
         }
     }

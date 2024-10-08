@@ -3,15 +3,6 @@ using BusinessLayer.License;
 using BusinessLayerCore;
 using DataLayer.Driver;
 using DataLayerCore.Driver;
-using DataLayerCore.InternationalLicense;
-using DataLayerCore.License;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace BusinessLayer
 {
@@ -91,10 +82,22 @@ namespace BusinessLayer
                 return await CreateAsync(Driver);
             else
                 return null;
-
-
         }
-        private async Task<bool> _AddNewDriver() 
+
+        public static async Task<clsPerson?> FindPerson(int DriverId)
+        {
+
+            var Person = await clsDriverData.GetPerson(DriverId);
+            if (Person is not null)
+            {
+                return await clsPerson.CreateAsync(Person);
+            }
+
+            return null;
+        }
+
+
+        private async Task<bool> _AddNewDriver()
         {
             var NewDriver = AutoMapperConfig.Mapper.Map<DriverForCreateDTO>(this);
             this.DriverID = await clsDriverData.AddNewDriver(NewDriver);
@@ -111,7 +114,7 @@ namespace BusinessLayer
             return await clsDriverData.UpdateDriver(DriverID ?? -1, UpdateDriver);
         }
 
-       
+
 
         public static async Task<List<DriverPrefDTO>> GetAllDrivers()
         {
@@ -144,7 +147,7 @@ namespace BusinessLayer
             return false;
         }
 
-        public static async Task<List<DriverLicenseDTO>>GetLicenses(int DriverID)
+        public static async Task<List<DriverLicenseDTO>> GetLicenses(int DriverID)
         {
             return await clsLicense.GetDriverLicenses(DriverID);
         }
