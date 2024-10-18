@@ -1,12 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataLayerCore
+namespace DVLD.Persistence
 {
     internal static class DataReaderExtensions
     {
@@ -34,7 +29,7 @@ namespace DataLayerCore
                 }
                 else
                 {
-                    var TargetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType; 
+                    var TargetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
                     var convertedValue = Convert.ChangeType(value, TargetType);
                     property.SetValue(obj, convertedValue);
                 }
@@ -42,6 +37,6 @@ namespace DataLayerCore
 
             return obj;
         }
-       
+
     }
 }

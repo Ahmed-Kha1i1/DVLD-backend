@@ -16,10 +16,10 @@ namespace BusinessLayer
         }
         public enMode Mode = enMode.AddNew;
 
-        public clsPerson? PersonInfo;
 
         public int? DriverID { set; get; }
         public int? PersonID { set; get; }
+        public clsPerson? PersonInfo;
         public int? CreatedByUserID { set; get; }
         public DateTime CreatedDate { get; set; }
         public byte NumberofActiveLicenses { get; set; }

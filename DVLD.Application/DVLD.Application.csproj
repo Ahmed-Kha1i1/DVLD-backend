@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DVLD.Domain\DVLD.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Application\Commands\" />
+    <Folder Include="Features\Application\Common\" />
+    <Folder Include="Features\Application\Queries\" />
+    <Folder Include="Features\ApplicationType\Commands\" />
+    <Folder Include="Features\ApplicationType\Common\" />
+    <Folder Include="Features\ApplicationType\Queries\" />
+    <Folder Include="Features\Countries\Common\" />
+    <Folder Include="Features\DetainedLicense\Commands\" />
+    <Folder Include="Features\DetainedLicense\Common\" />
+    <Folder Include="Features\DetainedLicense\Queries\" />
+    <Folder Include="Features\Driver\Commands\" />
+    <Folder Include="Features\Driver\Common\" />
+    <Folder Include="Features\Driver\Queries\" />
+    <Folder Include="Features\InternationalLicense\Commands\" />
+    <Folder Include="Features\InternationalLicense\Common\" />
+    <Folder Include="Features\InternationalLicense\Queries\" />
+    <Folder Include="Features\License\Commands\" />
+    <Folder Include="Features\License\Common\" />
+    <Folder Include="Features\License\Queries\" />
+    <Folder Include="Features\LicenseClass\Commands\" />
+    <Folder Include="Features\LicenseClass\Common\" />
+    <Folder Include="Features\LicenseClass\Queries\" />
+    <Folder Include="Features\LocalApplication\Commands\" />
+    <Folder Include="Features\LocalApplication\Common\" />
+    <Folder Include="Features\LocalApplication\Queries\" />
+    <Folder Include="Features\Test\Commands\" />
+    <Folder Include="Features\Test\Common\" />
+    <Folder Include="Features\Test\Queries\" />
+    <Folder Include="Features\TestAppointment\Commands\" />
+    <Folder Include="Features\TestAppointment\Common\" />
+    <Folder Include="Features\TestAppointment\Queries\" />
+    <Folder Include="Features\TestType\Commands\" />
+    <Folder Include="Features\TestType\Common\" />
+    <Folder Include="Features\TestType\Queries\" />
+  </ItemGroup>
+
+</Project>

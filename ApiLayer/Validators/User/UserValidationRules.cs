@@ -12,7 +12,7 @@ namespace ApiLayer.Validators.User
             {
                 int? Id = accessor is not null ? CustomValidators.GetIdFromRoute(accessor, _UserId) : null;
                 return await userService.BeUniqueUsername(username, Id);
-            }).WithMessage("Email must be unique");
+            }).WithMessage("Username must be unique");
 
         }
     }

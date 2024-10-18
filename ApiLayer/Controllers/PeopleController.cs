@@ -173,8 +173,6 @@ namespace DVLDApi.Controllers
         [ValidateId("personId")]
         public async Task<IActionResult> DeletePerson(int personId)
         {
-
-
             var personExists = await clsPerson.IsPersonExists(personId);
 
             if (!personExists)
