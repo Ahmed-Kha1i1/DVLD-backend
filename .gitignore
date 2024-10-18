@@ -482,3 +482,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+#Old projects 
+/ApiLayer/
+/BusinessLayer/
+/DataLayer/
