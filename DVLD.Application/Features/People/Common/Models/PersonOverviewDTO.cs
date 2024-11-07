@@ -1,4 +1,4 @@
-﻿namespace DVLD.Application.Features.People
+﻿namespace DVLD.Application.Features.People.Common.Models
 {
     public class PersonOverviewDTO
     {

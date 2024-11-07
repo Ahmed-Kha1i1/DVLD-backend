@@ -9,6 +9,7 @@ using DVLD.Application.Features.Users.Commands.AddUserCommand;
 using DVLD.Application.Features.Users.Commands.DeleteUserCommand;
 using DVLD.Application.Features.Users.Commands.UpdatePasswordCommand;
 using DVLD.Application.Features.Users.Commands.UpdateUserCommand;
+using DVLD.Application.Features.Users.Common.Requests.PasswordValid;
 using DVLD.Application.Features.Users.Common.Requests.Username;
 using DVLD.Application.Features.Users.Common.Requests.Username.Unique;
 using DVLD.Application.Features.Users.Queries.GetUserQuery;
@@ -21,40 +22,42 @@ namespace DVLD.API.Controllers
     [ApiController]
     public class UsersController(IUserRepository userRepository) : AppControllerBase
     {
-        [HttpGet("{Id}", Name = "GetUserFull")] // UserId
+        [HttpGet("{Id:Int}", Name = "GetUserFull")] // UserID
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [RequestHeaderMatchesMediaType("accept", "application/json", "application/vnd.user.full+json")]
         [Produces("application/json", "application/vnd.user.full+json")]
         public async Task<IActionResult> GetUser([FromRoute()] IdRequest request)
         {
-            var user = await _mediator.Send(new GetUserQuery(request.Id));
-            return CreateResult(user);
+            var result = await _mediator.Send(new GetUserQuery(request.Id));
+            return CreateResult(result);
         }
 
-        [HttpGet("{Id}", Name = "GetUserOverview")]//UserId
+        [HttpGet("{Id:Int}", Name = "GetUserOverview")]//UserID
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [RequestHeaderMatchesMediaType("accept", "application/vnd.user.pref+json")]
         [Produces("application/vnd.user.pref+json")]
         public async Task<IActionResult> GetUserOverview([FromRoute()] IdRequest request)
         {
-            var user = await _mediator.Send(new GetUserOverviewQuery(request.Id));
-            return CreateResult(user);
+            var result = await _mediator.Send(new GetUserOverviewQuery(request.Id));
+            return CreateResult(result);
         }
         [HttpGet("{Id:int}/person", Name = "GetPersonByUserId")]//UserID
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPerson([FromRoute()] IdRequest request)
         {
-            var person = await _mediator.Send(new GetUserPersonQuery(request.Id));
-            return CreateResult(person);
+            var result = await _mediator.Send(new GetUserPersonQuery(request.Id));
+            return CreateResult(result);
         }
 
         [HttpPost(Name = "AddUser")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddUser(AddUserCommand command)
         {
             var result = await _mediator.Send(command);
@@ -68,7 +71,6 @@ namespace DVLD.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateUser(UpdateUserCommand command)
         {
             var result = await _mediator.Send(command);
@@ -84,8 +86,8 @@ namespace DVLD.API.Controllers
             var result = await _mediator.Send(command);
             return CreateResult(result);
         }
-        [HttpDelete("{Id}", Name = "DeleteUser")] //UserId
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpDelete("{Id:Int}", Name = "DeleteUser")] //userId
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser([FromRoute()] IdRequest request)
@@ -103,7 +105,7 @@ namespace DVLD.API.Controllers
             return CreateResult(new Response<IReadOnlyList<UserOverviewDTO>>(HttpStatusCode.OK, result));
         }
 
-        [HttpGet("Exists/{Id}", Name = "IsUserExistByUserId")]//UserId
+        [HttpGet("Exists/{Id}", Name = "IsUserExistByUserId")]//personId
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> IsUserExistByUserId([FromRoute()] IdRequest request)
@@ -112,7 +114,8 @@ namespace DVLD.API.Controllers
             return CreateResult(new Response<bool>(HttpStatusCode.OK, result));
         }
 
-        [HttpGet("Exists/Person/{Id}", Name = "IsUserExistByPersonId")]//UserId
+
+        [HttpGet("Exists/Person/{Id}", Name = "IsUserExistByPersonId")]//personId
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> IsUserExistByPersonId([FromRoute()] IdRequest request)
@@ -130,7 +133,7 @@ namespace DVLD.API.Controllers
             return CreateResult(new Response<bool>(HttpStatusCode.OK, result));
         }
 
-        [HttpGet("Active/{Id}", Name = "IsUserActive")]//UserId
+        [HttpGet("Active/{Id}", Name = "IsUserActive")]//UserID
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> IsUserActive([FromRoute()] IdRequest request)
@@ -147,5 +150,15 @@ namespace DVLD.API.Controllers
             var result = await userRepository.IsUsernameUnique(request.Username, request.Id);
             return CreateResult(new Response<bool>(HttpStatusCode.OK, result));
         }
+
+        [HttpGet("PasswordValid", Name = "IsPasswordValid")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> IsPasswordValid([FromQuery()] PasswordValidRequest request)
+        {
+            var result = await userRepository.IsPasswordValid(request.UserId, request.CurrentPassword);
+            return CreateResult(new Response<bool>(HttpStatusCode.OK, result));
+        }
+
     }
 }

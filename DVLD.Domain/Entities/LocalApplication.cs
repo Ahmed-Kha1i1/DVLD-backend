@@ -6,5 +6,7 @@ namespace DVLD.Domain.Entities
     {
         public int LicenseClassID { get; set; }
         public LicenseClass? LicenseClassInfo;
+        public int ApplicationId { get; set; }
+        public Application? ApplicationInfo;
     }
 }

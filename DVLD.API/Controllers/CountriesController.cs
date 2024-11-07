@@ -19,8 +19,8 @@ namespace DVLD.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCountry([FromRoute()] IdRequest request)
         {
-            var country = await _mediator.Send(new GetCountryByIdQuery(request.Id));
-            return CreateResult(country);
+            var result = await _mediator.Send(new GetCountryByIdQuery(request.Id));
+            return CreateResult(result);
         }
 
         [HttpGet("{CountryName:regex(^[[a-zA-Z ]]*$)}", Name = "GetCountryByName")]
@@ -29,13 +29,12 @@ namespace DVLD.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCountry(string CountryName)
         {
-            var country = await _mediator.Send(new GetCountryByNameQuery(CountryName));
-            return CreateResult(country);
+            var result = await _mediator.Send(new GetCountryByNameQuery(CountryName));
+            return CreateResult(result);
         }
 
         [HttpGet("All", Name = "GetAllCountries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAllCountries()
         {
             var result = await countryRepository.ListAsync();

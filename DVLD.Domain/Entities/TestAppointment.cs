@@ -7,7 +7,7 @@ namespace DVLD.Domain.Entities
     {
         public enTestType TestTypeID { get; set; }
         public int LocalApplicationID { get; set; }
-        public DateTime AppointmentDate { get; set; } = DateTime.Now;
+        public DateOnly AppointmentDate { get; set; }
         public float PaidFees { get; set; }
         public int CreatedByUserID { get; set; }
         public bool IsLocked { get; set; } = false;

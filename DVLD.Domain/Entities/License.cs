@@ -15,7 +15,7 @@ namespace DVLD.Domain.Entities
         public string? Notes { get; set; }
         public float PaidFees { get; set; }
         public bool IsActive { get; set; } = true;
-        public enIssueReason IssueReason { get; set; } = enIssueReason.FirstTime;
+        public enIssueReason IssueReason { get; set; }
         public int CreatedByUserID { get; set; }
     }
 }

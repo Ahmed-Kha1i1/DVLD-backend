@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using DVLD.Application.Common.Response;
-using DVLD.Application.Contracts.Persistence;
-using MediatR;
 
 namespace DVLD.Application.Features.Users.Commands.UpdateUserCommand
 {
@@ -22,7 +19,15 @@ namespace DVLD.Application.Features.Users.Commands.UpdateUserCommand
                 return Fail<UserDTO>(null, "Error updating user");
             }
             user.PersonInfo = await personRepository.GetByIdAsync(user.PersonID);
+            if (user.PersonInfo == null)
+            {
+                return NotFound<UserDTO>("Person not found");
+            }
             user.PersonInfo.CountryInfo = await countryRepository.GetByIdAsync(user.PersonInfo.NationalityCountryID);
+            if (user.PersonInfo.CountryInfo is null)
+            {
+                return NotFound<UserDTO>("Country not found");
+            }
 
             var mappedUser = mapper.Map<UserDTO>(user);
             return Success(mappedUser);

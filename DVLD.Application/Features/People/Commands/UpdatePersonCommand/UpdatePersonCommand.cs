@@ -1,5 +1,6 @@
 ﻿using DVLD.Application.Common.Response;
 using DVLD.Application.Features.People.Commands.ModificationPerson;
+using DVLD.Application.Features.People.Common.Models;
 using MediatR;
 
 namespace DVLD.Application.Features.People.Commands.UpdatePersonCommand

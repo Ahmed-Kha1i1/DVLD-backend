@@ -9,19 +9,19 @@ namespace DVLD.Persistence.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        DataSendhandler _dataSendhandler;
+
         public UserRepository(DataSendhandler dataSendhandler, IMapper mapper) : base(dataSendhandler, mapper)
         {
-            _dataSendhandler = dataSendhandler;
+
         }
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int userId)
         {
-            return await GetItemAsync<User>("SP_FindUserById", id, "UserID");
+            return await GetEntityAsync<User>("SP_FindUserById", userId, "UserID");
         }
 
         public async Task<Person?> GetPerson(int userId)
         {
-            return await GetItemAsync<Person?>("SP_FindPersondByUserId", userId, "UserID");
+            return await GetEntityAsync<Person?>("SP_FindPersondByUserId", userId, "UserID");
         }
 
         public async Task<IReadOnlyList<UserOverviewDTO>> ListUsersOverviewAsync()
@@ -85,9 +85,9 @@ namespace DVLD.Persistence.Repositories
             return RowAffected > 0;
         }
 
-        public override async Task<bool> DeleteAsync(int id)
+        public override async Task<bool> DeleteAsync(int userId)
         {
-            return await DeleteAsync("SP_DeleteUserById", id, "UserID");
+            return await DeleteAsync("SP_DeleteUserById", userId, "UserID");
         }
 
         public async Task<bool> IsUserActive(int userId)
@@ -118,6 +118,24 @@ namespace DVLD.Persistence.Repositories
         public async Task<bool> IsPersonIdUnique(int PersonId, int? userId = null)
         {
             return await IsUnique("SP_IsPersonIdUnique", PersonId, "PersonId", userId);
+        }
+
+        public async Task<bool> IsPasswordValid(int UserId, string Password)
+        {
+            bool isValid = false;
+            await _dataSendhandler.Handle("SP_IsPasswordValid", async (Connection, Command) =>
+            {
+
+                Command.Parameters.AddWithValue("@UserId", UserId);
+                Command.Parameters.AddWithValue("@Password", Password);
+                Connection.Open();
+
+                object? Result = await Command.ExecuteScalarAsync();
+
+                isValid = Result is not null && (int)Result == 1;
+            });
+
+            return isValid;
         }
     }
 }

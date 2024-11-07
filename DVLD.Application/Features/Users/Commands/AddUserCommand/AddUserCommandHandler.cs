@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
-using DVLD.Application.Common.Response;
-using DVLD.Application.Contracts.Persistence;
 using DVLD.Domain.Entities;
-using MediatR;
 
 namespace DVLD.Application.Features.Users.Commands.AddUserCommand
 {

@@ -1,5 +1,6 @@
 ﻿using DVLD.Application;
 using DVLD.Persistence;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace DVLD.API
@@ -10,16 +11,29 @@ namespace DVLD.API
         private readonly IConfigurationRoot _configuration;
         public Startup(IConfigurationRoot configuration)
         {
+
             _configuration = configuration;
         }
         public void ConfigureServices(IServiceCollection Services)
         {
+            // AddAsync API documentation and exploration
+            Services.AddEndpointsApiExplorer();
+            Services.AddSwaggerGen(c =>
+            {
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+            });
+
             Services.AddApplicationServices(_configuration)
                 .AddPersistenceServices(_configuration)
                 .AddInfrastructureServices(_configuration);
 
             Services.AddProblemDetails();
-            Services.AddControllers();
+            Services.AddControllers(options =>
+            {
+                options.Filters.Add(new ProducesResponseTypeAttribute(401));
+                options.Filters.Add(new ProducesResponseTypeAttribute(403));
+                options.Filters.Add(new ProducesResponseTypeAttribute(500));
+            });
             Services.AddSingleton<FileExtensionContentTypeProvider>();
             // Configure CORS
             Services.AddCors(options =>
@@ -30,10 +44,6 @@ namespace DVLD.API
                 });
             });
 
-
-            // AddAsync API documentation and exploration
-            Services.AddEndpointsApiExplorer();
-            Services.AddSwaggerGen();
         }
 
         public void Configure(WebApplication app)
@@ -50,7 +60,7 @@ namespace DVLD.API
             app.UseHttpsRedirection();
             app.UseCors(AllowSpicificOrigin);
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
             app.MapControllers();
         }
     }

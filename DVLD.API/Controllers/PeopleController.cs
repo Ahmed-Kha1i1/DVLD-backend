@@ -2,10 +2,10 @@
 using DVLD.Application.Common.Requests.Id;
 using DVLD.Application.Common.Response;
 using DVLD.Application.Contracts.Persistence;
-using DVLD.Application.Features.People;
 using DVLD.Application.Features.People.Commands.AddPersonCommand;
 using DVLD.Application.Features.People.Commands.DeletePersonCommand;
 using DVLD.Application.Features.People.Commands.UpdatePersonCommand;
+using DVLD.Application.Features.People.Common.Models;
 using DVLD.Application.Features.People.Common.Requests.Email.Unique;
 using DVLD.Application.Features.People.Common.Requests.NationalNumber;
 using DVLD.Application.Features.People.Common.Requests.Phone.Unique;
@@ -21,17 +21,28 @@ namespace DVLD.API.Controllers
     public class PeopleController(IPersonRepository personRepository) : AppControllerBase
     {
 
-        [HttpGet("{Id:int}", Name = "GetPersonById")]//UserId
+        [HttpGet("{Id:int}", Name = "GetPersonById")] // PersonId
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPerson([FromRoute()] IdRequest request)
         {
-            var person = await _mediator.Send(new GetPersonByIdQuery(request.Id));
-            return CreateResult(person);
+            var result = await _mediator.Send(new GetPersonByIdQuery(request.Id));
+            return CreateResult(result);
+        }
+
+        [HttpGet("{Id:int}/DriverId", Name = "GetDriverId")] //PersonId
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetDriverId([FromRoute()] IdRequest request)
+        {
+            var result = await personRepository.GetDriverId(request.Id);
+            return CreateResult(new Response<int?>(HttpStatusCode.OK, result));
         }
 
         [HttpGet("NationalNumber/{nationalNumber}", Name = "GetPersonByNationalNo")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
         public async Task<IActionResult> GetPerson([FromRoute()] NationalNumberRequest request)
@@ -44,15 +55,14 @@ namespace DVLD.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllPersons()
         {
-            var result = await personRepository.ListPeopleOverviewAsync();
+            var result = await personRepository.ListOverviewAsync();
             return CreateResult(new Response<IReadOnlyList<PersonOverviewDTO>>(HttpStatusCode.OK, result));
         }
 
         [HttpPost(Name = "AddPerson")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status207MultiStatus)]
         public async Task<IActionResult> AddPerson([FromForm] AddPersonCommand command)
         {
             var result = await _mediator.Send(command);
@@ -67,18 +77,16 @@ namespace DVLD.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdatePerson([FromForm] UpdatePersonCommand command)
         {
             var result = await _mediator.Send(command);
             return CreateResult(result);
         }
 
-        [HttpDelete("{Id:int}", Name = "DeletePerson")]//UserId
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpDelete("{Id:int}", Name = "DeletePerson")] //PersonId
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeletePerson([FromRoute()] IdRequest request)
         {
             var result = await _mediator.Send(new DeletePersonCommand(request.Id));
@@ -112,7 +120,7 @@ namespace DVLD.API.Controllers
             return CreateResult(new Response<bool>(HttpStatusCode.OK, result));
         }
 
-        [HttpGet("Exists/{Id:int}", Name = "IsPersonExistsById")]//UserId
+        [HttpGet("Exists/{Id:int}", Name = "IsPersonExistsById")]//DriverId
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> IsPersonExistsById([FromRoute()] IdRequest request)

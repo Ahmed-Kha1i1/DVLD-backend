@@ -16,7 +16,7 @@ namespace DVLD.Persistence.Repositories.Base
         }
 
 
-        protected async Task<TEntity?> GetItemAsync<TEntity>(string storedProcedure, int id, string parameterName) where TEntity : BaseEntity?
+        protected async Task<TEntity?> GetEntityAsync<TEntity>(string storedProcedure, int id, string parameterName) where TEntity : BaseEntity?
         {
             TEntity? entity = null;
 
@@ -36,7 +36,25 @@ namespace DVLD.Persistence.Repositories.Base
 
             return entity;
         }
+        protected async Task<T?> GetAsync<T>(string storedProcedure, int id, string parameterName) where T : class
+        {
+            T? entity = null;
 
+            await _dataSendhandler.Handle(storedProcedure, async (Connection, Command) =>
+            {
+                Command.Parameters.AddWithValue($"@{parameterName}", id);
+                Connection.Open();
+                using (SqlDataReader reader = await Command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        entity = _mapper.Map<T>(reader);
+                    }
+                }
+            });
+
+            return entity;
+        }
         protected async Task<IReadOnlyList<T>> ListAllAsync<T>(string storedProcedure) where T : class, new()
         {
             List<T> list = new();

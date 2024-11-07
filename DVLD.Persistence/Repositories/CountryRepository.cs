@@ -15,13 +15,13 @@ namespace DVLD.Persistence.Repositories
         {
         }
 
-        public async Task<Country?> GetByIdAsync(int id)
+        public async Task<Country?> GetByIdAsync(int CountryId)
         {
             Country? entity = null;
 
             await _dataSendhandler.Handle("SP_GetCountryById", async (Connection, Command) =>
             {
-                Command.Parameters.AddWithValue($"@CountryId", id);
+                Command.Parameters.AddWithValue($"@CountryId", CountryId);
                 Connection.Open();
                 using (SqlDataReader reader = await Command.ExecuteReaderAsync())
                 {

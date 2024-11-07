@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DVLD.Application.Contracts.Persistence;
-using DVLD.Application.Features.People;
+using DVLD.Application.Features.People.Common.Models;
 using DVLD.Domain.Common.Enums;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
@@ -11,16 +11,15 @@ namespace DVLD.Persistence.Repositories
 {
     public class PersonRepository : GenericRepository<Person>, IPersonRepository
     {
-        protected readonly IMapper _mapper;
         public PersonRepository(DataSendhandler dataSendhandler, IMapper mapper) : base(dataSendhandler, mapper)
         {
-            _mapper = mapper;
         }
 
-        public async Task<Person?> GetByIdAsync(int id)
+        public async Task<Person?> GetByIdAsync(int PersonId)
         {
-            return await GetItemAsync<Person>("SP_FindPersondById", id, "PersonID");
+            return await GetEntityAsync<Person>("SP_FindPersondById", PersonId, "PersonID");
         }
+
         public async Task<Person?> GetAsync(string NationalNo)
         {
             Person? Person = null;
@@ -147,28 +146,50 @@ namespace DVLD.Persistence.Repositories
             return await DeleteAsync("SP_DeletePersonById", id, "PersonID");
         }
 
-        public async Task<IReadOnlyList<PersonOverviewDTO>> ListPeopleOverviewAsync()
+        public async Task<IReadOnlyList<PersonOverviewDTO>> ListOverviewAsync()
         {
             return await ListAllAsync<PersonOverviewDTO>("SP_GetAllPeople");
         }
 
-        public async Task<bool> IsNationalNoUnique(string NationalNo, int? Id)
+        public async Task<bool> IsNationalNoUnique(string NationalNo, int? PersonId)
         {
-            return await IsUnique("SP_IsNationalNoUnique", NationalNo, "NationalNo", Id);
+            return await IsUnique("SP_IsNationalNoUnique", NationalNo, "NationalNo", PersonId);
         }
 
-        public async Task<bool> IsEmailUnique(string Email, int? Id)
+        public async Task<bool> IsEmailUnique(string Email, int? PersonId)
         {
-            return await IsUnique("SP_IsEmailUnique", Email, "Email", Id);
+            return await IsUnique("SP_IsEmailUnique", Email, "Email", PersonId);
         }
 
-        public async Task<bool> IsPhoneUnique(string Phone, int? Id)
+        public async Task<bool> IsPhoneUnique(string Phone, int? PersonId)
         {
-            return await IsUnique("SP_IsPhoneUnique", Phone, "Phone", Id);
+            return await IsUnique("SP_IsPhoneUnique", Phone, "Phone", PersonId);
         }
-        public async Task<bool> IsPersonExists(int Id)
+
+        public async Task<bool> IsPersonExists(int PersonId)
         {
-            return await CheckConditionAsync("SP_IsPersonExists", Id, "PersonID");
+            return await CheckConditionAsync("SP_IsPersonExists", PersonId, "PersonID");
+        }
+
+        public async Task<int?> GetDriverId(int PersonId)
+        {
+            int? DriverId = null;
+            await _dataSendhandler.Handle("SP_GetDriverId", async (Connection, Command) =>
+            {
+                Connection.Open();
+                Command.Parameters.AddWithValue($"@PersonId", PersonId);
+                object? Result = await Command.ExecuteScalarAsync();
+
+                object? result = await Command.ExecuteScalarAsync();
+
+                if (result is not null && int.TryParse(result.ToString(), out int id))
+                {
+                    DriverId = id;
+
+                }
+            });
+
+            return DriverId;
         }
     }
 }

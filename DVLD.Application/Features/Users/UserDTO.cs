@@ -1,4 +1,4 @@
-﻿using DVLD.Application.Features.People;
+﻿using DVLD.Application.Features.People.Common.Models;
 
 namespace DVLD.Application.Features.Users
 {

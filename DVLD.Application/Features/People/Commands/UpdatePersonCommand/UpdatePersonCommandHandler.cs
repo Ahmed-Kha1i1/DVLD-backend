@@ -2,6 +2,7 @@
 using DVLD.Application.Common.Enums;
 using DVLD.Application.Common.Response;
 using DVLD.Application.Contracts.Persistence;
+using DVLD.Application.Features.People.Common.Models;
 using DVLD.Application.Infrastracture;
 using DVLD.Domain.Entities;
 using MediatR;

@@ -13,7 +13,8 @@ namespace DVLD.Application.Contracts.Persistence
         Task<bool> IsUserExistByPersonId(int personId);
         Task<bool> IsUserExistByUserName(string userName);
         Task<bool> IsUserActive(int userId);
-        Task<bool> IsUsernameUnique(string Username, int? Id = null);
-        Task<bool> IsPersonIdUnique(int PersonId, int? Id = null);
+        Task<bool> IsUsernameUnique(string Username, int? userId = null);
+        Task<bool> IsPersonIdUnique(int PersonId, int? userId = null);
+        Task<bool> IsPasswordValid(int UserId, string Password);
     }
 }

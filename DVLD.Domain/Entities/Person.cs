@@ -35,7 +35,7 @@ namespace DVLD.Domain.Entities
         public string Phone { get; set; }
         public string Email { get; set; }
         public int NationalityCountryID { get; set; }
-        public Country CountryInfo;
+        public Country? CountryInfo;
         public string? ImageName { get; set; }
 
     }

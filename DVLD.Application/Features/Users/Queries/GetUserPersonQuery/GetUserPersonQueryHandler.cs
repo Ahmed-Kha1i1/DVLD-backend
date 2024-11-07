@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using DVLD.Application.Common.Response;
-using DVLD.Application.Contracts.Persistence;
+using DVLD.Application.Features.People.Common.Models;
 using DVLD.Domain.Entities;
-using MediatR;
 
 namespace DVLD.Application.Features.People.Queries.GetPersonQuery
 {
-    internal class GetUserPersonQueryHandler : ResponseHandler
+    public class GetUserPersonQueryHandler : ResponseHandler
          , IRequestHandler<GetUserPersonQuery, Response<PersonDTO>>
     {
         private readonly IUserRepository _userRepository;
@@ -31,6 +29,10 @@ namespace DVLD.Application.Features.People.Queries.GetPersonQuery
                 return NotFound<PersonDTO>("Person not found");
             }
             person.CountryInfo = await _countryRepository.GetByIdAsync(person.NationalityCountryID);
+            if (person.CountryInfo is null)
+            {
+                return NotFound<PersonDTO>("Country not found");
+            }
             return Success(_mapper.Map<PersonDTO>(person));
         }
     }

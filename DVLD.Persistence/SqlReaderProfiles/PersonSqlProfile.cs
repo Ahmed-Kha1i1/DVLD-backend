@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DVLD.Application.Features.People;
+using DVLD.Application.Features.People.Common.Models;
 using DVLD.Domain.Common.Enums;
 using DVLD.Domain.Entities;
 using System.Data;
