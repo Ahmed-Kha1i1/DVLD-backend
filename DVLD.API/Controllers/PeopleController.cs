@@ -5,10 +5,10 @@ using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.People.Commands.AddPersonCommand;
 using DVLD.Application.Features.People.Commands.DeletePersonCommand;
 using DVLD.Application.Features.People.Commands.UpdatePersonCommand;
-using DVLD.Application.Features.People.Common.Models;
 using DVLD.Application.Features.People.Common.Requests.Email.Unique;
 using DVLD.Application.Features.People.Common.Requests.NationalNumber;
 using DVLD.Application.Features.People.Common.Requests.Phone.Unique;
+using DVLD.Application.Features.People.Queries.GetPeopleQuery;
 using DVLD.Application.Features.People.Queries.GetPersonQuery;
 using DVLD.Application.Features.People.Queries.GetPersonQuery.ByNationalNumber;
 using Microsoft.AspNetCore.Mvc;
@@ -53,10 +53,10 @@ namespace DVLD.API.Controllers
 
         [HttpGet("All", Name = "GetAllPersons")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllPersons()
+        public async Task<IActionResult> GetAllPersons([FromQuery] GetPeopleQuery query)
         {
-            var result = await personRepository.ListOverviewAsync();
-            return CreateResult(new Response<IReadOnlyList<PersonOverviewDTO>>(HttpStatusCode.OK, result));
+            var result = await _mediator.Send(query);
+            return CreateResult(result);
         }
 
         [HttpPost(Name = "AddPerson")]

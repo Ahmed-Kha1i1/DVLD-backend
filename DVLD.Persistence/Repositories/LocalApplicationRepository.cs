@@ -137,7 +137,7 @@ namespace DVLD.Persistence.Repositories
             return await ListAllAsync<LocalApplicationOverviewDTO>("SP_GetAllLocalDrivingLicenseApplications");
         }
 
-        public async Task<(IReadOnlyList<LocalApplicationOverviewDTO> items, int TotalCount)> ListOverviewAsync(GetLocalApplicationsQuery request)
+        public async Task<(IReadOnlyList<LocalApplicationOverviewDTO> items, int totalCount)> ListOverviewAsync(GetLocalApplicationsQuery request)
         {
             List<LocalApplicationOverviewDTO> Items = new();
 

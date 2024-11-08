@@ -12,8 +12,9 @@ namespace DVLD.Application.Features.LocalApplication.Queries.GetLocalApplication
                 Items = result.items,
                 Metadata = new()
                 {
-                    TotalCount = result.TotalCount,
-                    PageSize = Convert.ToInt16(request.PageSize)
+                    TotalCount = result.totalCount,
+                    PageSize = request.PageSize,
+                    PageNumber = request.PageNumber
                 }
             };
             return Success(resposne);

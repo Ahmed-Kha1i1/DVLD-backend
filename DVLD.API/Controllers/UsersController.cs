@@ -4,7 +4,6 @@ using DVLD.Application.Common.Requests.Id;
 using DVLD.Application.Common.Response;
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.People.Queries.GetPersonQuery;
-using DVLD.Application.Features.Users;
 using DVLD.Application.Features.Users.Commands.AddUserCommand;
 using DVLD.Application.Features.Users.Commands.DeleteUserCommand;
 using DVLD.Application.Features.Users.Commands.UpdatePasswordCommand;
@@ -13,6 +12,7 @@ using DVLD.Application.Features.Users.Common.Requests.PasswordValid;
 using DVLD.Application.Features.Users.Common.Requests.Username;
 using DVLD.Application.Features.Users.Common.Requests.Username.Unique;
 using DVLD.Application.Features.Users.Queries.GetUserQuery;
+using DVLD.Application.Features.Users.Queries.GetUsersQuery;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -99,10 +99,10 @@ namespace DVLD.API.Controllers
         [HttpGet("All", Name = "GetAllUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] GetUsersQuery query)
         {
-            var result = await userRepository.ListUsersOverviewAsync();
-            return CreateResult(new Response<IReadOnlyList<UserOverviewDTO>>(HttpStatusCode.OK, result));
+            var result = await _mediator.Send(query);
+            return CreateResult(result);
         }
 
         [HttpGet("Exists/{Id}", Name = "IsUserExistByUserId")]//personId

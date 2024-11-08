@@ -9,7 +9,7 @@ namespace DVLD.Application.Contracts.Persistence
 {
     public interface ILocalApplicationRepository : IAsyncRepository<LocalApplication>, IAsyncListOverviewRepository<LocalApplicationOverviewDTO>
     {
-        Task<(IReadOnlyList<LocalApplicationOverviewDTO> items, int TotalCount)> ListOverviewAsync(GetLocalApplicationsQuery request);
+        Task<(IReadOnlyList<LocalApplicationOverviewDTO> items, int totalCount)> ListOverviewAsync(GetLocalApplicationsQuery request);
         Task<LocalApplicationDTO?> GetOverviewAsync(int LocalApplicationId);
         Task<LocalApplicationPrefDTO?> GetPref(int LocalApplicationId);
         Task<GetLocalApplicationPerTestTypeQueryResponse?> GetPerTestTypeAsync(int LocalApplicationId, enTestType TestTypeId);

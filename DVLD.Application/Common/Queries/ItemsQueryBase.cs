@@ -3,7 +3,13 @@
     public abstract class ItemsQueryBase : IPageableQueryBase, ISearchableQueryBase, ISortableQueryBase
     {
         protected virtual short MaxPageSize { get; set; } = 20;
-        public int PageNumber { get; set; } = 1;
+        private int _minPageNumber = 1;
+        private int _pageNumber = 1;
+        public int PageNumber
+        {
+            get => _pageNumber;
+            set => _pageNumber = (value < _minPageNumber) ? _minPageNumber : value;
+        }
         private short _pageSize = 10;
         public short PageSize
         {

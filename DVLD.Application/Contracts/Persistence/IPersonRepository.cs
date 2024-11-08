@@ -1,5 +1,6 @@
 ﻿using DVLD.Application.Contracts.Persistence.Base;
 using DVLD.Application.Features.People.Common.Models;
+using DVLD.Application.Features.People.Queries.GetPeopleQuery;
 using DVLD.Domain.Entities;
 
 namespace DVLD.Application.Contracts.Persistence
@@ -12,5 +13,6 @@ namespace DVLD.Application.Contracts.Persistence
         Task<bool> IsPhoneUnique(string Phone, int? Id = null);
         Task<bool> IsPersonExists(int PersonId);
         Task<int?> GetDriverId(int PersonId);
+        Task<(IReadOnlyList<PersonOverviewDTO> items, int totalCount)> ListOverviewAsync(GetPeopleQuery request);
     }
 }

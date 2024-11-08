@@ -5,6 +5,7 @@ using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.Driver.Common.Model;
 using DVLD.Application.Features.Driver.Queries.GetDriverPersonQuery;
 using DVLD.Application.Features.Driver.Queries.GetDriverQuery;
+using DVLD.Application.Features.Driver.Queries.GetDriversQuery;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -54,10 +55,10 @@ namespace DVLD.API.Controllers
 
         [HttpGet("All", Name = "GetAllDrivers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllDrivers()
+        public async Task<IActionResult> GetAllDrivers([FromQuery] GetDriversQuery query)
         {
-            var result = await driverRepository.ListOverviewAsync();
-            return CreateResult(new Response<IReadOnlyList<DriverOverviewDTO>>(HttpStatusCode.OK, result));
+            var result = await _mediator.Send(query);
+            return CreateResult(result);
         }
         [HttpGet("{Id}/Licenses", Name = "GetDriverLicenses")] // DriverId
         [ProducesResponseType(StatusCodes.Status200OK)]

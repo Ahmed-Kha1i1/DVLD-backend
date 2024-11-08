@@ -1,5 +1,6 @@
 ﻿using DVLD.Application.Contracts.Persistence.Base;
 using DVLD.Application.Features.Users;
+using DVLD.Application.Features.Users.Queries.GetUsersQuery;
 using DVLD.Domain.Entities;
 
 namespace DVLD.Application.Contracts.Persistence
@@ -8,6 +9,7 @@ namespace DVLD.Application.Contracts.Persistence
     {
         Task<Person?> GetPerson(int userId);
         Task<IReadOnlyList<UserOverviewDTO>> ListUsersOverviewAsync();
+        Task<(IReadOnlyList<UserOverviewDTO> items, int totalCount)> ListOverviewAsync(GetUsersQuery request);
         Task<bool> UpdatePassword(int userId, string NewPassword);
         Task<bool> IsUserExistByUserId(int userId);
         Task<bool> IsUserExistByPersonId(int personId);

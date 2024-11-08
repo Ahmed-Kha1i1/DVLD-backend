@@ -1,9 +1,11 @@
 ﻿using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.Driver.Common.Model;
+using DVLD.Application.Features.Driver.Queries.GetDriversQuery;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
 using DVLD.Persistence.Repositories.Base;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace DVLD.Persistence.Repositories
 {
@@ -81,8 +83,45 @@ namespace DVLD.Persistence.Repositories
         }
 
         public async Task<IReadOnlyList<DriverOverviewDTO>> ListOverviewAsync()
+
         {
             return await ListAllAsync<DriverOverviewDTO>("SP_GetAllDrivers");
+        }
+
+        public async Task<(IReadOnlyList<DriverOverviewDTO> items, int totalCount)> ListOverviewAsync(GetDriversQuery request)
+        {
+            List<DriverOverviewDTO> items = new();
+            int totalCount = 0;
+
+            await _dataSendhandler.Handle("SP_GetAllDrivers", async (connection, command) =>
+            {
+                var totalCountParam = new SqlParameter("@TotalCount", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                command.Parameters.AddWithValue("@SearchQuery", request.SearchQuery);
+                command.Parameters.AddWithValue("@Id", request.Id);
+                command.Parameters.AddWithValue("@PersonID", request.PersonId);
+                command.Parameters.AddWithValue("@NationalNumber", request.NationalNumber);
+                command.Parameters.AddWithValue("@OrderBy", request.OrderBy);
+                command.Parameters.AddWithValue("@OrderDirection", request.OrderDirection);
+                command.Parameters.AddWithValue("@PageNumber", request.PageNumber);
+                command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                command.Parameters.Add(totalCountParam);
+
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(_mapper.Map<DriverOverviewDTO>(reader));
+                    }
+                }
+                totalCount = (int?)totalCountParam.Value ?? 0;
+            });
+
+            return (items, totalCount);
         }
 
         protected override async Task<int?> AddAsync(Driver entity)

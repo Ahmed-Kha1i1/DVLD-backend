@@ -2,9 +2,12 @@
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.InternationalLicense.Common.Model;
 using DVLD.Application.Features.InternationalLicense.Queries.GetInternationalLicenseQuery;
+using DVLD.Application.Features.InternationalLicense.Queries.GetInternationalLicensesQuery;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
 using DVLD.Persistence.Repositories.Base;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace DVLD.Persistence.Repositories
 {
@@ -52,6 +55,43 @@ namespace DVLD.Persistence.Repositories
         public async Task<IReadOnlyList<InternationalLicenseOverviewDTO>> ListOverviewAsync()
         {
             return await ListAllAsync<InternationalLicenseOverviewDTO>("SP_GetAllInternationalLicenses");
+        }
+
+        public async Task<(IReadOnlyList<InternationalLicenseOverviewDTO> items, int totalCount)> ListOverviewAsync(GetInternationalLicensesQuery request)
+        {
+            List<InternationalLicenseOverviewDTO> items = new();
+            int totalCount = 0;
+
+            await _dataSendhandler.Handle("SP_GetAllInternationalLicenses", async (connection, command) =>
+            {
+                var totalCountParam = new SqlParameter("@TotalCount", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                // Add parameters for the stored procedure
+                command.Parameters.AddWithValue("@Id", request.Id);
+                command.Parameters.AddWithValue("@DriverId", request.DriverId);
+                command.Parameters.AddWithValue("@LicenseId", request.LicenseId);
+                command.Parameters.AddWithValue("@IsActive", request.IsActive);
+                command.Parameters.AddWithValue("@OrderBy", request.OrderBy);
+                command.Parameters.AddWithValue("@OrderDirection", request.OrderDirection);
+                command.Parameters.AddWithValue("@PageNumber", request.PageNumber);
+                command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                command.Parameters.Add(totalCountParam);
+
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(_mapper.Map<InternationalLicenseOverviewDTO>(reader));
+                    }
+                }
+                totalCount = (int?)totalCountParam.Value ?? 0;
+            });
+
+            return (items, totalCount);
         }
 
         protected override async Task<int?> AddAsync(InternationalLicense entity)

@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.People.Common.Models;
+using DVLD.Application.Features.People.Queries.GetPeopleQuery;
 using DVLD.Domain.Common.Enums;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
 using DVLD.Persistence.Repositories.Base;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace DVLD.Persistence.Repositories
 {
@@ -149,6 +151,42 @@ namespace DVLD.Persistence.Repositories
         public async Task<IReadOnlyList<PersonOverviewDTO>> ListOverviewAsync()
         {
             return await ListAllAsync<PersonOverviewDTO>("SP_GetAllPeople");
+        }
+
+        public async Task<(IReadOnlyList<PersonOverviewDTO> items, int totalCount)> ListOverviewAsync(GetPeopleQuery request)
+        {
+            List<PersonOverviewDTO> Items = new();
+
+            int TotalCount = 0;
+            await _dataSendhandler.Handle("SP_GetAllPeople", async (Connection, Command) =>
+            {
+                var TotalCountParameter = new SqlParameter("@TotalCount", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                Command.Parameters.AddWithValue("@SearchQuery", request.SearchQuery);
+                Command.Parameters.AddWithValue("@Id", request.Id);
+                Command.Parameters.AddWithValue("@NationalNumber", request.NationalNumber);
+                Command.Parameters.AddWithValue("@Gender", request.Gender);
+                Command.Parameters.AddWithValue("@OrderBy", request.OrderBy);
+                Command.Parameters.AddWithValue("@OrderDirection", request.OrderDirection);
+                Command.Parameters.AddWithValue("@PageNumber", request.PageNumber);
+                Command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                Command.Parameters.Add(TotalCountParameter);
+
+                Connection.Open();
+                using (SqlDataReader reader = await Command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        Items.Add(_mapper.Map<PersonOverviewDTO>(reader));
+                    }
+                }
+                TotalCount = (int?)TotalCountParameter.Value ?? 0;
+            });
+
+            return (Items, TotalCount);
         }
 
         public async Task<bool> IsNationalNoUnique(string NationalNo, int? PersonId)

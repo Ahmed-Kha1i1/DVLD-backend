@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.Users;
+using DVLD.Application.Features.Users.Queries.GetUsersQuery;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
 using DVLD.Persistence.Repositories.Base;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace DVLD.Persistence.Repositories
 {
@@ -27,6 +30,43 @@ namespace DVLD.Persistence.Repositories
         public async Task<IReadOnlyList<UserOverviewDTO>> ListUsersOverviewAsync()
         {
             return await ListAllAsync<UserOverviewDTO>("SP_GetAllUsers");
+        }
+
+        public async Task<(IReadOnlyList<UserOverviewDTO> items, int totalCount)> ListOverviewAsync(GetUsersQuery request)
+        {
+            List<UserOverviewDTO> items = new();
+            int totalCount = 0;
+
+            await _dataSendhandler.Handle("SP_GetAllUsers", async (connection, command) =>
+            {
+                var totalCountParam = new SqlParameter("@TotalCount", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                command.Parameters.AddWithValue("@SearchQuery", request.SearchQuery);
+                command.Parameters.AddWithValue("@Id", request.Id);
+                command.Parameters.AddWithValue("@PersonID", request.PersonId);
+                command.Parameters.AddWithValue("@UserName", request.Username);
+                command.Parameters.AddWithValue("@IsActive", request.IsActive);
+                command.Parameters.AddWithValue("@OrderBy", request.OrderBy);
+                command.Parameters.AddWithValue("@OrderDirection", request.OrderDirection);
+                command.Parameters.AddWithValue("@PageNumber", request.PageNumber);
+                command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                command.Parameters.Add(totalCountParam);
+
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(_mapper.Map<UserOverviewDTO>(reader));
+                    }
+                }
+                totalCount = (int?)totalCountParam.Value ?? 0;
+            });
+
+            return (items, totalCount);
         }
 
         public async Task<bool> UpdatePassword(int userId, string NewPassword)

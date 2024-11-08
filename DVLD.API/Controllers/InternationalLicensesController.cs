@@ -1,11 +1,10 @@
 ﻿using DVLD.API.Base;
 using DVLD.Application.Common.Requests.Id;
-using DVLD.Application.Common.Response;
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.InternationalLicense.Commands.AddInternationalLicenseCommand;
-using DVLD.Application.Features.InternationalLicense.Common.Model;
 using DVLD.Application.Features.InternationalLicense.Queries.GetInternationalLicenseApplicationQuery;
 using DVLD.Application.Features.InternationalLicense.Queries.GetInternationalLicenseQuery;
+using DVLD.Application.Features.InternationalLicense.Queries.GetInternationalLicensesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -18,10 +17,10 @@ namespace DVLD.API.Controllers
     {
         [HttpGet("All", Name = "GetAllInternationalLicenses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllInternationalLicenses()
+        public async Task<IActionResult> GetAllInternationalLicenses([FromQuery] GetInternationalLicensesQuery query)
         {
-            var result = await internationalLicenseRepository.ListOverviewAsync();
-            return CreateResult(new Response<IReadOnlyList<InternationalLicenseOverviewDTO>>(HttpStatusCode.OK, result));
+            var result = await _mediator.Send(query);
+            return CreateResult(result);
         }
 
         [HttpGet("{Id}/Application", Name = "GetInternationalLicenseApplication")] // internationalLicenseId
