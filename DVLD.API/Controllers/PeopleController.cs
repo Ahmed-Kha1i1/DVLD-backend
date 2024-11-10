@@ -40,7 +40,7 @@ namespace DVLD.API.Controllers
             return CreateResult(new Response<int?>(HttpStatusCode.OK, result));
         }
 
-        [HttpGet("NationalNumber/{nationalNumber}", Name = "GetPersonByNationalNo")]
+        [HttpGet("NationalNumber/{NationalNumber}", Name = "GetPersonByNationalNo")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,6 +1,4 @@
-﻿using ApiLayer.Validators;
-using DVLD.Application.Features.People.Common.Validators;
-using FluentValidation;
+﻿using DVLD.Application.Features.People.Common.Validators;
 
 namespace DVLD.Application.Features.People.Common.Requests.Phone.Unique
 {
@@ -9,7 +7,7 @@ namespace DVLD.Application.Features.People.Common.Requests.Phone.Unique
         public PhoneUniqueRequestValidator()
         {
             RuleFor(req => req.Phone).Requeired().ValidPhone();
-            RuleFor(req => req.Id).ValidId();
+            RuleFor(req => req.Id).Must(id => id == null || id > 0).WithMessage("{PropertyName} must be greater than 0");
         }
     }
 }

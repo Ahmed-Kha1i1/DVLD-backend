@@ -1,6 +1,4 @@
-﻿using ApiLayer.Validators;
-using DVLD.Application.Features.People.Common.Validators;
-using FluentValidation;
+﻿using DVLD.Application.Features.People.Common.Validators;
 
 namespace DVLD.Application.Features.People.Common.Requests.NationalNumber
 {
@@ -9,7 +7,7 @@ namespace DVLD.Application.Features.People.Common.Requests.NationalNumber
         public NationalNumberUniqueRequestValidator()
         {
             RuleFor(req => req.NationalNumber).Requeired().ValidNationalNo();
-            RuleFor(req => req.Id).ValidId();
+            RuleFor(req => req.Id).Must(id => id == null || id > 0).WithMessage("{PropertyName} must be greater than 0");
         }
     }
 }

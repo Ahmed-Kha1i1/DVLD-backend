@@ -14,6 +14,14 @@ namespace DVLD.Application.Features.InternationalLicense.Commands.AddInternation
             Task<AllEntities.Driver> driverTask = driverRepository.GetByIdAsync(license.DriverID);
             Task<AllEntities.ApplicationType> ApplicationTypeTask = applicationTypeRepository.GetByIdAsync((int)enApplicationType.NewInternationalLicense);
 
+            await Task.WhenAll(driverTask, ApplicationTypeTask);
+            license.DriverInfo = driverTask.Result;
+            AllEntities.ApplicationType? applicationType = ApplicationTypeTask.Result;
+            if (driverTask.Result == null || ApplicationTypeTask.Result == null)
+            {
+                return NotFound<int?>("Error retrieving necessary information for Adding international license.");
+            }
+
             if (license.DriverInfo == null)
             {
                 return NotFound<int?>("Error retrieving necessary information for Adding international license.");
@@ -45,15 +53,9 @@ namespace DVLD.Application.Features.InternationalLicense.Commands.AddInternation
             {
                 return BadRequest<int?>($"Driver already holds an active international license with ID {activeLicenseId}.");
             }
-            await Task.WhenAll(driverTask, ApplicationTypeTask);
 
-            if (driverTask.Result == null || ApplicationTypeTask.Result == null)
-            {
-                return NotFound<int?>("Error retrieving necessary information for Adding international license.");
-            }
 
-            license.DriverInfo = driverTask.Result;
-            AllEntities.ApplicationType? applicationType = ApplicationTypeTask.Result;
+
 
             AllEntities.InternationalLicense InternationalLicense = new();
             InternationalLicense.ApplicationInfo = new();
