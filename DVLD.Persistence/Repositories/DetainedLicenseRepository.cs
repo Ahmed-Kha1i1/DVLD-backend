@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.DetainedLicense.Common.Models;
+using DVLD.Application.Features.DetainedLicense.Queries.GetDetainedLicensesByDateRangeQuery;
 using DVLD.Application.Features.DetainedLicense.Queries.GetDetainedLicensesQuery;
 using DVLD.Domain.Entities;
 using DVLD.Persistence.Handlers;
@@ -29,6 +30,31 @@ namespace DVLD.Persistence.Repositories
         public async Task<DetainedLicense?> GetByLicenseIdAsync(int LicenseID)
         {
             return await GetEntityAsync<DetainedLicense?>("SP_GetDetainedLicenseInfoByLicenseID", LicenseID, "LicenseID");
+        }
+
+        public async Task<IReadOnlyList<GetDetainedLicensesByDateRangeQueryResponse>> GetDetainedLicensesByDateRange(DateTime? StartDate, DateTime? EndDate)
+        {
+            List<GetDetainedLicensesByDateRangeQueryResponse> Items = new();
+
+
+            await _dataSendhandler.Handle("SP_GetDetainedLicensesByDateRange", async (Connection, Command) =>
+            {
+                Command.Parameters.AddWithValue("@StartDate", StartDate);
+                Command.Parameters.AddWithValue("@EndtDate", EndDate);
+
+
+                Connection.Open();
+                using (SqlDataReader reader = await Command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        Items.Add(_mapper.Map<GetDetainedLicensesByDateRangeQueryResponse>(reader));
+                    }
+                }
+
+            });
+
+            return Items;
         }
 
         public async Task<bool> IsLicenseDetained(int LicenseID)
@@ -89,6 +115,7 @@ namespace DVLD.Persistence.Repositories
 
             return (Items, TotalCount);
         }
+
 
         public async Task<bool> ReleaseDetainedLicense(int DetainID, int ReleasedByUserID, int ReleaseApplicationID)
         {

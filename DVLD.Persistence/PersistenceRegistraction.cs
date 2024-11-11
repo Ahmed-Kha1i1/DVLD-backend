@@ -34,6 +34,7 @@ namespace DVLD.Persistence
             services.AddScoped<ITestAppointmentRepository, TestAppointmentRepository>();
             services.AddScoped<ITestRepository, TestRepository>();
             services.AddScoped<ITestTypeRepository, TestTypeRepository>();
+            services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 
             return services;
         }

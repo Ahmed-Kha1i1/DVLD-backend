@@ -5,6 +5,7 @@ using DVLD.Application.Contracts.Persistence;
 using DVLD.Application.Features.DetainedLicense.Commands.DetainLicenseCommand;
 using DVLD.Application.Features.DetainedLicense.Commands.ReleaseDetainedLicenseCommand;
 using DVLD.Application.Features.DetainedLicense.Queries.GetDetainedLicenseQuery;
+using DVLD.Application.Features.DetainedLicense.Queries.GetDetainedLicensesByDateRangeQuery;
 using DVLD.Application.Features.DetainedLicense.Queries.GetDetainedLicensesQuery;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -18,6 +19,15 @@ namespace DVLD.API.Controllers
         [HttpGet("All", Name = "GetAllDetainedLicenses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllDetainedLicenses([FromQuery] GetDetainedLicensesQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return CreateResult(result);
+        }
+
+        [HttpGet("stats", Name = "GetDetainedLIcenesStats")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetDetainedLIcenesStats([FromQuery] GetDetainedLicensesByDateRangeQuery query)
         {
             var result = await _mediator.Send(query);
             return CreateResult(result);
