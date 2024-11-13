@@ -1,19 +1,17 @@
-﻿using DVLD.Application.Common.Response;
-using DVLD.Application.Infrastracture;
-using MediatR;
+﻿using DVLD.Application.Infrastracture;
 
 namespace DVLD.Application.Features.Images.Queries.GetImage
 {
     public class GetImageQueryHandler(IImageService imageService) : ResponseHandler, IRequestHandler<GetImageQuery, Response<GetImageQueryResponse>>
     {
-        public Task<Response<GetImageQueryResponse>> Handle(GetImageQuery request, CancellationToken cancellationToken)
+        public async Task<Response<GetImageQueryResponse>> Handle(GetImageQuery request, CancellationToken cancellationToken)
         {
-            var result = imageService.GetImage(request.FileName);
+            var result = await imageService.GetImageAsync(request.FileName);
             if (result is null)
             {
-                return Task.FromResult(NotFound<GetImageQueryResponse>("The specified key does not exist."));
+                return NotFound<GetImageQueryResponse>("The specified key does not exist.");
             }
-            return Task.FromResult(Success(result));
+            return Success(result);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using DVLD.Application.Infrastracture;
-using DVLD.Application.Services.ImageService;
+using DVLD.Infrastructure.Image.Cloudinary;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +11,10 @@ namespace DVLD.Application
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             //register services 
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IImageService, CloudinaryService>();
+            services.Configure<CloudinaryOptions>(configuration.GetSection("Coudinary"));
             return services;
         }
+
     }
 }

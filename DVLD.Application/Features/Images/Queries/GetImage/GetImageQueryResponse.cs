@@ -2,10 +2,10 @@
 {
     public class GetImageQueryResponse
     {
-        public FileStream Image { get; set; }
+        public Stream Image { get; set; }
         public string ContentType { get; set; }
 
-        public GetImageQueryResponse(FileStream image, string contentType)
+        public GetImageQueryResponse(Stream image, string contentType)
         {
             Image = image;
             ContentType = contentType;

@@ -487,3 +487,9 @@ $RECYCLE.BIN/
 /ApiLayer/
 /BusinessLayer/
 /DataLayer/
+
+#ignore logs
+/logs/
+
+#configraion
+config.json

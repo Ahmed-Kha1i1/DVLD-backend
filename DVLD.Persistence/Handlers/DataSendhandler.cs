@@ -1,22 +1,16 @@
-﻿
-
-
-
-using DVLD.Persistence.Configurations;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace DVLD.Persistence.Handlers
 {
     public class DataSendhandler
     {
-        ConnectionStringOptions _connectionStringOptions;
         public delegate Task RequestHandler(SqlConnection Connection, SqlCommand Command);
         public delegate void ExceptionHandler(Exception ex);
-
-        public DataSendhandler(IOptionsSnapshot<ConnectionStringOptions> connectionStringOptions)
+        private readonly ConnectionStrings _connectionStrings;
+        public DataSendhandler(IOptionsSnapshot<ConnectionStrings> connectionStrings)
         {
-            _connectionStringOptions = connectionStringOptions.Value;
+            _connectionStrings = connectionStrings.Value;
         }
 
         private void DefaultExceptionHandle()
@@ -33,7 +27,7 @@ namespace DVLD.Persistence.Handlers
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionStringOptions.DefaultConnection))
+                using (SqlConnection connection = new SqlConnection(_connectionStrings.DefaultConnection))
                 {
                     using (SqlCommand Command = new SqlCommand(StoredProcedure, connection))
                     {

@@ -5,6 +5,7 @@
     {
         public async Task<Response<GetPeopleQueryResponse>> Handle(GetPeopleQuery request, CancellationToken cancellationToken)
         {
+
             var result = await personRepository.ListOverviewAsync(request);
 
             var resposne = new GetPeopleQueryResponse()

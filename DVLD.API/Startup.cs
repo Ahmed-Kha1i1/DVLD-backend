@@ -40,7 +40,7 @@ namespace DVLD.API
             {
                 options.AddPolicy(AllowSpicificOrigin, policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("Location");
+                    policy.WithOrigins("https://licensemanagment.netlify.app").AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("Location");
                 });
             });
 

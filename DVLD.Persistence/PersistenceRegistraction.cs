@@ -1,6 +1,5 @@
 ﻿using AutoMapper.Data;
 using DVLD.Application.Contracts.Persistence;
-using DVLD.Persistence.Configurations;
 using DVLD.Persistence.Handlers;
 using DVLD.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ namespace DVLD.Persistence
     {
         public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<ConnectionStringOptions>(configuration.GetSection("ConnectionStrings"));
+
             services.AddScoped<DataSendhandler>();
 
             services.AddAutoMapper(ctg =>
@@ -36,7 +35,10 @@ namespace DVLD.Persistence
             services.AddScoped<ITestTypeRepository, TestTypeRepository>();
             services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 
+
+            services.Configure<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
             return services;
         }
+
     }
 }

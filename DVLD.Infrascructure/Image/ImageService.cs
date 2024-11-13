@@ -19,20 +19,20 @@ namespace DVLD.Application.Services.ImageService
             _filePrivider = filePrivider;
         }
 
-        public GetImageQueryResponse? GetImage(string fileName)
+        public Task<GetImageQueryResponse?> GetImageAsync(string fileName)
         {
             var uploadDirectory = _ImagesOptions.ImagesDirectory;
 
             if (string.IsNullOrEmpty(uploadDirectory) || !Directory.Exists(uploadDirectory))
             {
-                return null;
+                return Task.FromResult<GetImageQueryResponse?>(null);
             }
             var filePath = Path.Combine(uploadDirectory, fileName);
 
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                return null;
+                return Task.FromResult<GetImageQueryResponse?>(null);
             }
 
             // Open the image file for reading
@@ -40,9 +40,9 @@ namespace DVLD.Application.Services.ImageService
 
             if (!_filePrivider.TryGetContentType(fileName, out var contentType))
             {
-                return default;
+                return Task.FromResult<GetImageQueryResponse?>(null);
             }
-            return new GetImageQueryResponse(image, contentType);
+            return Task.FromResult<GetImageQueryResponse?>(new GetImageQueryResponse(image, contentType));
         }
 
         public async Task<string> UploadImageAsync(IFormFile? imageFile)

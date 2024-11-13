@@ -6,9 +6,10 @@ namespace DVLD.Application.Infrastracture
 {
     public interface IImageService
     {
-        GetImageQueryResponse? GetImage(string fileName);
+        Task<GetImageQueryResponse?> GetImageAsync(string fileName);
         Task<string> UploadImageAsync(IFormFile? imageFile);
         Task<bool> DeleteImageAsync(string ImageName);
         Task<(enUpdateImage ImageStatus, string NewIMage)> ReplaceImageAsync(IFormFile? ImageFile, string? OldImageName, bool RemoveImage);
     }
+
 }

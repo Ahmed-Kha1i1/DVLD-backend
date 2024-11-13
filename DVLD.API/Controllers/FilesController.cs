@@ -9,12 +9,13 @@ namespace ApiLayer.Controllers
     public class FilesController : AppControllerBase
     {
 
-        [HttpGet("GetImage/{fileName}", Name = "GetImage")]
+        [HttpGet("GetImage/{fileName}", Name = "GetImageAsync")]
         public async Task<IActionResult> GetImage(string fileName)
         {
             var result = await _mediator.Send(new GetImageQuery(fileName));
             if (result.StatusCode != System.Net.HttpStatusCode.OK)
                 return CreateResult(result);
+
             return File(result.Data.Image, result.Data.ContentType);
         }
 

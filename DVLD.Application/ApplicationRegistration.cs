@@ -1,7 +1,5 @@
-﻿using ApiLayer.Validators;
-using DVLD.Application.Exceptions.Handlers;
+﻿using DVLD.Application.Exceptions.Handlers;
 using DVLD.Application.Models;
-using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -32,6 +30,8 @@ namespace DVLD.Application
                 config.EnablePathBindingSourceAutomaticValidation = true;
                 config.OverrideDefaultResultFactoryWith<ValidationResultFactory>();
             });
+
+
             return services;
         }
     }
