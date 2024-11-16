@@ -27,7 +27,7 @@
 
 ## Features under development
   - **Authentication:** Using JWT
-  - **Authentication:** Using Role Based Authorization
+  - **Authorization:** Using Role Based Authorization
   - **Email service**
   
 ## Usage
